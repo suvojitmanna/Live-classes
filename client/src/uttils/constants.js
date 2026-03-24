@@ -30,11 +30,6 @@ export const ROUTES = {
   JOIN: '/join',
 };
 
-export const ZEGO_CONFIG = {
-  APP_ID: process.env.REACT_APP_ZEGO_APP_ID,
-  SERVER_SECRET: process.env.REACT_APP_ZEGO_SERVER_SECRET || '', // Optional for test tokens
-};
-
 /**
  * App Configuration
  * Brand information and app-wide settings
