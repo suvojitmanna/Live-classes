@@ -84,10 +84,14 @@ const HeroSection = () => {
             >
               <Link
                 to={ROUTES.DASHBOARD}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg flex items-center"
+                className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg flex items-center overflow-hidden transition-all duration-300"
               >
-                {APP_CONFIG.HOME_CONTENT.HERO.CTA_AUTHENTICATED}
-                <FaArrowRight className="ml-2" />
+                <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 blur-xl transition"></span>
+
+                <span className="relative flex items-center">
+                  {APP_CONFIG.HOME_CONTENT.HERO.CTA_AUTHENTICATED}
+                  <FaArrowRight className="ml-2 transition-transform duration-300 group-hover:translate-x-2" />
+                </span>
               </Link>
             </motion.div>
           ) : (
@@ -100,10 +104,17 @@ const HeroSection = () => {
               >
                 <Link
                   to={ROUTES.REGISTER}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg flex items-center"
+                  className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg flex items-center justify-center overflow-hidden transition-all duration-300"
                 >
-                  {APP_CONFIG.HOME_CONTENT.HERO.CTA_PRIMARY}
-                  <FaArrowRight className="ml-2" />
+                  {/* Glow background */}
+                  <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition duration-300 blur-xl"></span>
+
+                  {/* Content */}
+                  <span className="relative flex items-center">
+                    {APP_CONFIG.HOME_CONTENT.HERO.CTA_PRIMARY}
+
+                    <FaArrowRight className="ml-2 transition-transform duration-300 group-hover:translate-x-2" />
+                  </span>
                 </Link>
               </motion.div>
 
@@ -115,9 +126,11 @@ const HeroSection = () => {
               >
                 <Link
                   to={ROUTES.LOGIN}
-                  className="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-xl font-semibold text-lg"
+                  className="group px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-xl font-semibold text-lg transition-all duration-300 hover:bg-blue-50 hover:shadow-lg flex items-center justify-center"
                 >
-                  {APP_CONFIG.HOME_CONTENT.HERO.CTA_SECONDARY}
+                  <span className="flex items-center">
+                    {APP_CONFIG.HOME_CONTENT.HERO.CTA_SECONDARY}
+                  </span>
                 </Link>
               </motion.div>
             </>

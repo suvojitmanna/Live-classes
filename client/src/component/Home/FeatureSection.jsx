@@ -23,7 +23,7 @@ const FeatureSection = () => {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          viewport={{ once: false, amount: 0.2 }} // 🔥 scroll trigger
+          viewport={{ once: false, amount: 0.2 }} //   scroll trigger
           className="text-center mb-12 sm:mb-16"
         >
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -38,7 +38,7 @@ const FeatureSection = () => {
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: false, amount: 0.2 }} // 🔥 triggers on scroll
+          viewport={{ once: false, amount: 0.2 }} //  triggers on scroll
           variants={{
             hidden: {},
             visible: {

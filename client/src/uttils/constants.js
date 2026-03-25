@@ -45,7 +45,7 @@ export const APP_CONFIG = {
     GITHUB: 'https://github.com',
     TWITTER: 'https://twitter.com',
     LINKEDIN: 'https://linkedin.com',
-    EMAIL: 'mailto:support@liveclasses.com',
+    EMAIL: 'mailto:mannasuvojit84@gmail.com',
   },
   
   // Footer Links

@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import HotSession from "./pages/HotSession";
 import JoinSession from "./pages/JoinSession";
 import PageNotFound from "./pages/PageNotFound";
+import { ROUTES } from "./uttils/constants";
 
 function Layout({ children, showHeader = true, showFooter = true }) {
   return (
@@ -37,23 +38,25 @@ const App = () => {
               }
             />
             <Route
-              path={Route.LOGIN}
+              path={ROUTES.LOGIN}
               element={
                 <Layout showHeader={false} showFooter={false}>
                   <Auth />
                 </Layout>
               }
             />
+
             <Route
-              path={Route.REGISTER}
+              path={ROUTES.REGISTER}
               element={
                 <Layout showHeader={false} showFooter={false}>
                   <Auth />
                 </Layout>
               }
             />
+
             <Route
-              path={Route.DASHBOARD}
+              path={ROUTES.DASHBOARD}
               element={
                 <ProtectedRoute>
                   <Layout>
@@ -62,8 +65,9 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+
             <Route
-              path={Route.HOST}
+              path={ROUTES.HOST}
               element={
                 <ProtectedRoute>
                   <Layout>
@@ -72,8 +76,9 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+
             <Route
-              path={Route.JOIN}
+              path={ROUTES.JOIN}
               element={
                 <Layout>
                   <JoinSession />
