@@ -16,7 +16,6 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-
         {/* Grid */}
         <motion.div
           initial="hidden"
@@ -30,10 +29,12 @@ const Footer = () => {
           }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
         >
-
           {/* LEFT */}
           <motion.div
-            variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              visible: { opacity: 1, y: 0 },
+            }}
             className="col-span-1 sm:col-span-2"
           >
             <div className="flex items-center space-x-3 mb-4">
@@ -58,10 +59,10 @@ const Footer = () => {
                     i === 0
                       ? APP_CONFIG.SOCIAL_LINKS.GITHUB
                       : i === 1
-                      ? APP_CONFIG.SOCIAL_LINKS.TWITTER
-                      : i === 2
-                      ? APP_CONFIG.SOCIAL_LINKS.LINKEDIN
-                      : APP_CONFIG.SOCIAL_LINKS.EMAIL
+                        ? APP_CONFIG.SOCIAL_LINKS.TWITTER
+                        : i === 2
+                          ? APP_CONFIG.SOCIAL_LINKS.LINKEDIN
+                          : APP_CONFIG.SOCIAL_LINKS.EMAIL
                   }
                   target="_blank"
                   rel="noopener noreferrer"
@@ -75,7 +76,10 @@ const Footer = () => {
 
           {/* QUICK LINKS */}
           <motion.div
-            variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              visible: { opacity: 1, y: 0 },
+            }}
           >
             <h4 className="text-white font-semibold mb-3 sm:mb-4">
               Quick Links
@@ -105,11 +109,12 @@ const Footer = () => {
 
           {/* SUPPORT */}
           <motion.div
-            variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              visible: { opacity: 1, y: 0 },
+            }}
           >
-            <h4 className="text-white font-semibold mb-3 sm:mb-4">
-              Support
-            </h4>
+            <h4 className="text-white font-semibold mb-3 sm:mb-4">Support</h4>
             <ul className="space-y-2 text-sm sm:text-base">
               {APP_CONFIG.FOOTER_LINKS.SUPPORT_LINKS.map((link, index) => (
                 <li key={index}>
@@ -125,7 +130,6 @@ const Footer = () => {
               ))}
             </ul>
           </motion.div>
-
         </motion.div>
 
         {/* Bottom */}
@@ -141,7 +145,16 @@ const Footer = () => {
             {APP_CONFIG.COPYRIGHT_TEXT}
           </p>
         </motion.div>
-
+        <motion.span
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: false }}
+          transition={{ delay: 0.5 }}
+          className="text-gray-500 text-xs sm:text-sm opacity-70 hover:opacity-100 transition"
+        >
+          ✨ Crafted by
+          <span className="font-semibold text-blue-400">Suvojit Manna</span>
+        </motion.span>
       </div>
     </footer>
   );
