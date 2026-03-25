@@ -85,7 +85,7 @@ const App = () => {
               path="*"
               element={
                 <Layout showHeader={false} showFooter={false}>
-                  <PageNotFound/>
+                  <PageNotFound />
                 </Layout>
               }
             />

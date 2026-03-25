@@ -15,7 +15,7 @@ const PageNotFound = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-7xl font-extrabold text-blue-600 mb-4"
+          className="text-7xl font-extrabold text-gray-600 mb-4"
         >
           404
         </motion.h1>
@@ -32,7 +32,7 @@ const PageNotFound = () => {
         <motion.div whileHover={{ scale: 1.1 }}>
           <Link
             to="/"
-            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg"
+            className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg"
           >
             ⬅ Go Back Home
           </Link>
