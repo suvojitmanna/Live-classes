@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Header from "./component/Header";
 import Footer from "./component/Footer";
 import Auth from "./pages/Auth";
-import ProtectedRoute from "./component/ProtectedRoute";
+import ProtectedRoute from "./component/ProtectedRoute";//
 import Dashboard from "./pages/Dashboard";
 import HotSession from "./pages/HotSession";
 import JoinSession from "./pages/JoinSession";
