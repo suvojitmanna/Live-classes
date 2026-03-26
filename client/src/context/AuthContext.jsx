@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { API_ENDPOINTS } from "../uttils/constants";
+import { API_ENDPOINTS } from "../utils/constants";
 import api from "../service/api";
 import toast from "react-hot-toast";
 

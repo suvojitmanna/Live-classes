@@ -1,6 +1,6 @@
 import React from "react";
-import { useAuth } from "../../context/authcontext";
-import { APP_CONFIG, ROUTES } from "../../uttils/constants";
+import { useAuth } from "../../context/AuthContext";
+import { APP_CONFIG, ROUTES } from "../../utils/constants";
 import { Link } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";

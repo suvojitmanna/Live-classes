@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ROUTES } from "../uttils/constants";
-import { useAuth } from "../context/authcontext";
+import { ROUTES } from "../utils/constants";
+import { useAuth } from "../context/AuthContext";
 import AuthForm from "../component/AuthForm";
 
 const Auth = () => {

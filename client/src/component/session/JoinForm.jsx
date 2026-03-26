@@ -7,7 +7,7 @@ import {
   FaSpinner,
   FaUsers,
 } from "react-icons/fa";
-import { APP_CONFIG } from "../../uttils/constants";
+import { APP_CONFIG } from "../../utils/constants";
 import { motion } from "framer-motion";
 
 const JoinForm = ({ roomId, error, loading, onChange, onSubmit }) => {
@@ -46,7 +46,7 @@ const JoinForm = ({ roomId, error, loading, onChange, onSubmit }) => {
       className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
       variants={container}
       initial="hidden"
-      animate="visible" 
+      animate="visible"
       whileInView="visible"
       viewport={{ once: false, amount: 0.3 }}
     >

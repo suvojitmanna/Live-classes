@@ -1,5 +1,5 @@
 import React from "react";
-import { APP_CONFIG } from "../../uttils/constants";
+import { APP_CONFIG } from "../../utils/constants";
 import { FaComments, FaShieldAlt, FaUsers, FaVideo } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -12,12 +12,8 @@ const iconMap = {
 
 const FeatureSection = () => {
   return (
-    <section
-      id="features"
-      className="py-20 px-4 sm:px-6 lg:px-8 scroll-mt-20"
-    >
+    <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 scroll-mt-20">
       <div className="max-w-7xl mx-auto">
-
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -68,10 +64,10 @@ const FeatureSection = () => {
                     feature.color === "blue"
                       ? "from-blue-500 to-blue-600"
                       : feature.color === "green"
-                      ? "from-green-500 to-green-600"
-                      : feature.color === "purple"
-                      ? "from-purple-500 to-purple-600"
-                      : "from-indigo-500 to-indigo-600"
+                        ? "from-green-500 to-green-600"
+                        : feature.color === "purple"
+                          ? "from-purple-500 to-purple-600"
+                          : "from-indigo-500 to-indigo-600"
                   } rounded-xl flex items-center justify-center text-white mb-5 sm:mb-6`}
                 >
                   {IconComponent && (

@@ -6,7 +6,7 @@ import {
   FaTwitter,
   FaVideo,
 } from "react-icons/fa";
-import { APP_CONFIG } from "../uttils/constants";
+import { APP_CONFIG } from "../utils/constants";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { FaPlus, FaSpinner, FaUsers } from "react-icons/fa";
-import { APP_CONFIG } from "../../uttils/constants.js";
+import { APP_CONFIG } from "../../utils/constants.js";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 

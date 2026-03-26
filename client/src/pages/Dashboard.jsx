@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../uttils/constants.js";
+import { ROUTES } from "../utils/constants.js";
 import WelcomeSection from "../component/dashboard/WelcomeSection";
 import ActionCard from "../component/dashboard/ActionCard";
 import FeaturesGrid from "../component/dashboard/FeaturesGrid";

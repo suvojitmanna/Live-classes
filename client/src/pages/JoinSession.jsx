@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "../context/SessionContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useZego } from "../hooks/useZego";
-import { API_ENDPOINTS, APP_CONFIG, ROUTES } from "../uttils/constants";
+import { API_ENDPOINTS, APP_CONFIG, ROUTES } from "../utils/constants";
 import api from "../service/api";
 import SessionHeader from "../component/session/SessionHeader";
 import JoinForm from "../component/session/JoinForm";
@@ -210,9 +210,7 @@ const JoinSession = () => {
                 zegoLoading={zegoLoading}
                 onFullscreen={handleFullScreen}
                 onLeave={handleLeave}
-                leaveButtonText={
-                  APP_CONFIG.SESSION_CONTENT.VIDEO.LEAVE_BUTTON
-                }
+                leaveButtonText={APP_CONFIG.SESSION_CONTENT.VIDEO.LEAVE_BUTTON}
               />
             </div>
 

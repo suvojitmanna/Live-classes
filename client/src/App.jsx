@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import HotSession from "./pages/HotSession";
 import JoinSession from "./pages/JoinSession";
 import PageNotFound from "./pages/PageNotFound";
-import { ROUTES } from "./uttils/constants";
+import { ROUTES } from "./utils/constants";
 import { SessionProvider } from "./context/SessionContext";
 import { Toaster } from "react-hot-toast";
 

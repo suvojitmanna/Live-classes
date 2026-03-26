@@ -1,7 +1,7 @@
 import React from "react";
-import { APP_CONFIG } from "../../uttils/constants.js";
+import { APP_CONFIG } from "../../utils/constants.js";
 import { FaCircle, FaExternalLinkAlt, FaSpinner } from "react-icons/fa";
-import { formatDate } from "../../uttils/helper.js";
+import { formatDate } from "../../utils/helper.js";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 

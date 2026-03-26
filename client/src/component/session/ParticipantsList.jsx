@@ -1,6 +1,6 @@
 import React from "react";
 import { FaUsers } from "react-icons/fa";
-import { APP_CONFIG } from "../../uttils/constants";
+import { APP_CONFIG } from "../../utils/constants";
 import { motion } from "framer-motion";
 
 const ParticipantsList = ({ participants, hostName }) => {

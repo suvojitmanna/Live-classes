@@ -1,7 +1,7 @@
 import React from "react";
-import { useAuth } from "../context/authcontext";
+import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { APP_CONFIG, ROUTES } from "../uttils/constants";
+import { APP_CONFIG, ROUTES } from "../utils/constants";
 import { FaVideo } from "react-icons/fa";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";

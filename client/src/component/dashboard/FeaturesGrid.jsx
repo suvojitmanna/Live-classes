@@ -1,5 +1,5 @@
 import React from "react";
-import { APP_CONFIG } from "../../uttils/constants.js";
+import { APP_CONFIG } from "../../utils/constants.js";
 import { FaComments, FaShieldAlt, FaUsers, FaVideo } from "react-icons/fa";
 import { motion } from "framer-motion";
 

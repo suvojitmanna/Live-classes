@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import api from "../service/api";
-import { API_ENDPOINTS } from "../uttils/constants";
+import { API_ENDPOINTS } from "../utils/constants";
 
 const SessionContext = createContext();
 

@@ -1,7 +1,7 @@
 import { useAuth } from "../hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { FaSpinner } from "react-icons/fa";
-import { ROUTES } from "../uttils/constants";
+import { ROUTES } from "../utils/constants";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
