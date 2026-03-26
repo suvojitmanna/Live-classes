@@ -5,7 +5,7 @@ import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// ✅ Validation handler middleware
+//  Validation handler middleware
 const handleValidationError = (req, res, next) => {
   const errors = validationResult(req);
 
@@ -13,13 +13,12 @@ const handleValidationError = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: errors.array()[0].msg,
-      errors: errors.array(), // ✅ helpful for debugging
+      errors: errors.array(), //  helpful for debugging
     });
   }
 
   next();
 };
-
 
 // ================= REGISTER =================
 router.post(
@@ -42,9 +41,8 @@ router.post(
       .withMessage("Password must be at least 6 characters"),
   ],
   handleValidationError,
-  register
+  register,
 );
-
 
 // ================= LOGIN =================
 router.post(
@@ -60,9 +58,8 @@ router.post(
       .withMessage("Password must be at least 6 characters"),
   ],
   handleValidationError,
-  login
+  login,
 );
-
 
 // ================= GET USER =================
 router.get("/me", protect, getMe);

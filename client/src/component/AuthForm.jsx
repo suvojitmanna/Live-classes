@@ -12,6 +12,7 @@ import {
 import { APP_CONFIG, ROUTES } from "../uttils/constants";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 const AuthForm = ({
   mode,
@@ -118,14 +119,15 @@ const AuthForm = ({
                   Full Name
                 </label>
                 <div className="relative">
-                  <FaUser className="absolute left-3 top-3 text-gray-400" />
+                  <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
                   <input
                     name="name"
                     type="text"
                     value={formData.name || ""}
                     onChange={onChange}
-                    className="w-full pl-10 py-3 border rounded-lg"
-                    placeholder="John Doe"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="Suvojit"
                   />
                 </div>
               </motion.div>
@@ -141,13 +143,17 @@ const AuthForm = ({
                 Email
               </label>
               <div className="relative">
-                <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
+                <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   name="email"
                   type="email"
                   value={formData.email || ""}
                   onChange={onChange}
-                  className="w-full pl-10 py-3 border rounded-lg"
+                  className={`block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 ${
+                    isLogin
+                      ? "focus:ring-blue-500 focus:border-blue-500"
+                      : "focus:ring-purple-500 focus:border-purple-500"
+                  }`}
                   placeholder="you@example.com"
                 />
               </div>
@@ -160,7 +166,6 @@ const AuthForm = ({
                 visible: { opacity: 1, y: 0 },
               }}
             >
-              {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password
@@ -172,35 +177,44 @@ const AuthForm = ({
                   <input
                     name="password"
                     type="password"
+                    autoComplete={isLogin ? "current-password" : "new-password"}
                     required
                     value={formData.password || ""}
                     onChange={onChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    placeholder="Enter password"
+                    className={`block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 ${
+                      isLogin
+                        ? "focus:ring-blue-500 focus:border-blue-500"
+                        : "focus:ring-purple-500 focus:border-purple-500"
+                    }`}
+                    placeholder={
+                      isLogin ? "Enter password" : "Minimum 6 Character"
+                    }
                   />
                 </div>
               </div>
 
-              {/* Confirm Password */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaShieldAlt className="h-5 w-5 text-gray-400" />
+              {/* Confirm Password (ONLY for Register) */}
+              {!isLogin && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaShieldAlt className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      name="confirmPassword"
+                      type="password"
+                      required
+                      value={formData.confirmPassword || ""}
+                      onChange={onChange}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      placeholder="Re-enter password"
+                    />
                   </div>
-                  <input
-                    name="confirmPassword"
-                    type="password"
-                    required
-                    value={formData.confirmPassword || ""}
-                    onChange={onChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    placeholder="Re-enter password"
-                  />
                 </div>
-              </div>
+              )}
             </motion.div>
             {/* BUTTON */}
             <motion.button
@@ -208,14 +222,13 @@ const AuthForm = ({
               whileTap={{ scale: 0.97 }}
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg text-white ${
-                isLogin
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-purple-600 hover:bg-purple-700"
-              }`}
+              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02]  ${isLogin ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500" : "bg-gradient-to-r from-purple-600 to-pink-600  hover:from-purple-700 hover:to-pink-700 focus:ring-purple-500 mt-6"}`}
             >
               {loading ? (
-                <FaSpinner className="animate-spin mx-auto" />
+                <>
+                  <FaSpinner className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                  {isLogin ? "Signing..." : "Creating account..."}
+                </>
               ) : isLogin ? (
                 "Sign In"
               ) : (
@@ -224,23 +237,56 @@ const AuthForm = ({
             </motion.button>
           </motion.form>
 
-          {/* FOOTER */}
-          <div className="mt-6 text-center text-sm">
-            {isLogin ? (
-              <>
-                Don’t have an account?{" "}
-                <Link to={ROUTES.REGISTER} className="text-blue-600">
-                  Register
-                </Link>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <Link to={ROUTES.LOGIN} className="text-purple-600">
-                  Login
-                </Link>
-              </>
-            )}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              {isLogin ? (
+                <>
+                  Don't have an account{" "}
+                  <Link
+                    to={ROUTES.REGISTER}
+                    onClick={() =>
+                      toast("Let’s create your account 🚀", {
+                        icon: "✨",
+                        style: {
+                          background: "rgba(59,130,246,0.12)",
+                          backdropFilter: "blur(10px)",
+                          border: "1px solid rgba(59,130,246,0.3)",
+                          borderRadius: "10px",
+                          padding: "8px 12px",
+                          color: "black",
+                        },
+                      })
+                    }
+                    className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                  >
+                    Create one now
+                  </Link>
+                </>
+              ) : (
+                <>
+                  Already have an account{" "}
+                  <Link
+                    to={ROUTES.LOGIN}
+                    onClick={() =>
+                      toast("Welcome back 👋", {
+                        icon: "🔐",
+                        style: {
+                          background: "rgba(168,85,247,0.12)",
+                          backdropFilter: "blur(10px)",
+                          border: "1px solid rgba(168,85,247,0.3)",
+                          borderRadius: "10px",
+                          padding: "8px 12px",
+                          color: "black",
+                        },
+                      })
+                    }
+                    className="font-medium text-purple-600 hover:text-purple-500 transition-colors"
+                  >
+                    Sign in here
+                  </Link>
+                </>
+              )}
+            </p>
           </div>
         </motion.div>
       </div>

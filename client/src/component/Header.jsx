@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { APP_CONFIG, ROUTES } from "../uttils/constants";
 import { FaVideo } from "react-icons/fa";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -11,7 +12,7 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/", { replace: true }); // ✅ FIXED
+    navigate("/", { replace: true });
   };
 
   return (
@@ -24,8 +25,22 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo + Title */}
+
           <Link
-            to={isAuthenticated ? ROUTES.DASHBOARD : "/"}
+            to={"/"}
+            onClick={() =>
+              toast("Welcome to the home page 🏠", {
+                icon: "👋",
+                style: {
+                  background: "rgba(59,130,246,0.12)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(59,130,246,0.3)",
+                  borderRadius: "12px",
+                  padding: "10px 14px",
+                  color: "black",
+                },
+              })
+            }
             className="flex items-center gap-3"
           >
             <motion.div
@@ -51,6 +66,19 @@ const Header = () => {
                 <motion.div whileHover={{ y: -2 }}>
                   <Link
                     to={ROUTES.DASHBOARD}
+                    onClick={() =>
+                      toast("Opening dashboard 📊", {
+                        icon: "🚀",
+                        style: {
+                          background: "rgba(59,130,246,0.12)",
+                          backdropFilter: "blur(10px)",
+                          border: "1px solid rgba(59,130,246,0.3)",
+                          borderRadius: "12px",
+                          padding: "10px 14px",
+                          color: "black",
+                        },
+                      })
+                    }
                     className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
                   >
                     Dashboard
@@ -79,7 +107,7 @@ const Header = () => {
                   onClick={handleLogout}
                   className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors shadow-sm"
                 >
-                  Logout
+                  Log Out
                 </motion.button>
               </>
             ) : (
@@ -87,6 +115,19 @@ const Header = () => {
                 <motion.div whileHover={{ y: -2 }}>
                   <Link
                     to={ROUTES.LOGIN}
+                    onClick={() =>
+                      toast("Redirecting to login 🔐", {
+                        icon: "👋",
+                        style: {
+                          background: "rgba(30,30,30,0.6)",
+                          color: "#fff",
+                          backdropFilter: "blur(12px)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: "12px",
+                          padding: "10px 14px",
+                        },
+                      })
+                    }
                     className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
                   >
                     Sign In
@@ -99,7 +140,20 @@ const Header = () => {
                 >
                   <Link
                     to={ROUTES.REGISTER}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:blue-500 transition-colors shadow-sm"
+                    onClick={() =>
+                      toast.success("Let’s create your account 🚀", {
+                        icon: "✨",
+                        style: {
+                          background: "rgba(22,163,74,0.15)",
+                          backdropFilter: "blur(12px)",
+                          border: "1px solid rgba(34,197,94,0.4)",
+                          borderRadius: "12px",
+                          padding: "10px 14px",
+                          color: "black",
+                        },
+                      })
+                    }
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm"
                   >
                     Sign Up
                   </Link>

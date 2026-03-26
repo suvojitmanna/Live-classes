@@ -1,37 +1,33 @@
 import { verifyToken } from "../utills/jwt.js";
 
-export const protect = async (req, res, next) => {
-  try {
-    let token;
 
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized, no token provided",
-      });
-    }
-
+export const protect = async(req,res,next) => {
     try {
-      const decoded = verifyToken(token);
+        let token;
+        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+            token = req.headers.authorization.split(' ')[1]; //extract token part 
+        }
 
-      console.log("Decoded token:", decoded);
+        if(!token){
+            return res.status(401).json({
+                success:false,
+                error:'Not authorized, no token provide'
+            })
+        }
 
-      req.user = decoded; // attach user data
-      next();
+        try {
+             const decode = verifyToken(token);
+             console.log('this is token decode result',decode)
+             req.user = decode;
+             next();
+        } catch (error) {
+                  return res.status(401).json({
+                success:false,
+                error:'Not authorized, invalid token'
+            })
+        }
     } catch (error) {
-      return res.status(401).json({
-        success: false,
-        message: "Not authorized, invalid token",
-      });
+        next(error)
     }
-  } catch (error) {
-    next(error);
-  }
-};
+}

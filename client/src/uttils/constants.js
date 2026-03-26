@@ -3,7 +3,6 @@
  * 
  * Centralized constants used throughout the app
  */
-
 export const API_ENDPOINTS = {
   AUTH: {
     REGISTER: '/auth/register',
@@ -30,6 +29,11 @@ export const ROUTES = {
   JOIN: '/join',
 };
 
+export const ZEGO_CONFIG = {
+  APP_ID: Number(import.meta.env.VITE_ZEGO_APP_ID),
+  SERVER_SECRET: import.meta.env.VITE_ZEGO_SERVER_SECRET || '',
+};
+
 /**
  * App Configuration
  * Brand information and app-wide settings
@@ -45,7 +49,7 @@ export const APP_CONFIG = {
     GITHUB: 'https://github.com',
     TWITTER: 'https://twitter.com',
     LINKEDIN: 'https://linkedin.com',
-    EMAIL: 'mailto:mannasuvojit84@gmail.com',
+    EMAIL: 'mailto:support@liveclasses.com',
   },
   
   // Footer Links

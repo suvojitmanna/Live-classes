@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { API_ENDPOINTS } from "../uttils/constants";
 import api from "../service/api";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
@@ -37,6 +38,8 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
+      const t = toast.loading("Creating account...");
+
       const response = await api.post(API_ENDPOINTS.AUTH.REGISTER, {
         name,
         email,
@@ -48,22 +51,47 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", token);
       setUser(loggedInUser);
 
+      setTimeout(() => {
+        toast.success("Account created successfully 🎉", {
+          id: t,
+          icon: "🟢",
+          style: {
+            background: "rgba(22,163,74,0.15)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(34,197,94,0.4)",
+            borderRadius: "14px",
+            padding: "12px 16px",
+            boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
+            color: "black",
+          },
+        });
+      }, 700);
+
       return { success: true, user: loggedInUser };
     } catch (error) {
       const errorMessage =
         error?.response?.data?.error || error.message || "Register failed";
 
       setError(errorMessage);
+
+      // error toast added
+      toast.error(errorMessage, {
+        style: {
+          border: "1px solid rgba(239,68,68,0.35)",
+        },
+      });
+
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   };
-
   const login = async (email, password) => {
     try {
       setError(null);
       setLoading(true);
+
+      const t = toast.loading("Logging in...");
 
       const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, {
         email,
@@ -75,12 +103,31 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", token);
       setUser(loggedInUser);
 
-      return { success: true, user: loggedInUser };
+      // small delay = premium feel
+      setTimeout(() => {
+        toast.success("Welcome back! 🎉", {
+          id: t,
+          icon: "🟢",
+          style: {
+            background: "rgba(22,163,74,0.15)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(34,197,94,0.4)",
+            borderRadius: "14px",
+            padding: "12px 16px",
+            boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
+            color: "black",
+          },
+        });
+      }, 700);
+
+      return { success: true };
     } catch (error) {
       const errorMessage =
         error?.response?.data?.error || error.message || "Login failed";
 
       setError(errorMessage);
+      toast.error(errorMessage); // ✅ show error toast
+
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
@@ -88,10 +135,33 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    const t = toast.loading("Logging out...");
+
     localStorage.removeItem("token");
     setUser(null);
     setError(null);
-    window.location.replace("/login");
+
+    setTimeout(() => {
+      toast.success("Logged out successfully 👋", {
+        id: t,
+        icon: "🔒",
+        style: {
+          background: "rgba(239,68,68,0.12)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(239,68,68,0.35)",
+          borderRadius: "14px",
+          padding: "12px 16px",
+          boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
+          color: "black",
+        },
+      });
+
+      // better UX: delay + optional navigation
+      setTimeout(() => {
+        window.location.replace("/login");
+        // OR navigate("/login");
+      }, 800);
+    }, 500);
   };
 
   const value = {

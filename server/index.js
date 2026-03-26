@@ -4,6 +4,7 @@ import cors from "cors";
 import connectdb from "./config/db.js";
 import errorhendeller from "./middleware/errorhendeller.js";
 import authRoute from "./routes/authroute.js";
+import sessionRoutes from "./routes/SessionRoute.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ const corsOption = {
 app.use(cors(corsOption));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/session", sessionRoutes);
 
 //  Health check route
 app.get("/api/health", (req, res) => {
