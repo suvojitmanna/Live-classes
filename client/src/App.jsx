@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import { AuthProvider } from "./context/authcontext";
+import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Header from "./component/Header";
 import Footer from "./component/Footer";
