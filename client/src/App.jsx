@@ -1,35 +1,166 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { SessionProvider } from "./context/SessionContext";
+
 import Home from "./pages/Home";
 import Header from "./component/Header";
 import Footer from "./component/Footer";
 import Auth from "./pages/Auth";
-import ProtectedRoute from "./component/ProtectedRoute";//
+import ProtectedRoute from "./component/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import HotSession from "./pages/HotSession";
 import JoinSession from "./pages/JoinSession";
 import PageNotFound from "./pages/PageNotFound";
+
 import { ROUTES } from "./utils/constants";
-import { SessionProvider } from "./context/SessionContext";
 import { Toaster } from "react-hot-toast";
 
+import { motion, AnimatePresence } from "framer-motion";
+
+// 🔥 Layout Component (Responsive + Animated)
 function Layout({ children, showHeader = true, showFooter = true }) {
   return (
     <>
       {showHeader && <Header />}
 
-      <main className={showHeader ? "pt-16" : ""}>{children}</main>
+      <motion.main
+        className={`${
+          showHeader ? "pt-16 px-4 sm:px-6 md:px-8" : "px-4 sm:px-6 md:px-8"
+        } max-w-7xl mx-auto w-full`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        {children}
+      </motion.main>
 
       {showFooter && <Footer />}
     </>
   );
 }
 
+// 🔥 Page Animation Wrapper
+const PageWrapper = ({ children }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 25 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -25 }}
+      transition={{ duration: 0.35 }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// 🔥 Animated Routes Component
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {/* Home */}
+          <Route
+            path="/"
+            element={
+              <Layout>
+                <PageWrapper>
+                  <Home />
+                </PageWrapper>
+              </Layout>
+            }
+          />
+
+          {/* Login */}
+          <Route
+            path={ROUTES.LOGIN}
+            element={
+              <Layout showHeader={false} showFooter={false}>
+                <PageWrapper>
+                  <Auth />
+                </PageWrapper>
+              </Layout>
+            }
+          />
+
+          {/* Register */}
+          <Route
+            path={ROUTES.REGISTER}
+            element={
+              <Layout showHeader={false} showFooter={false}>
+                <PageWrapper>
+                  <Auth />
+                </PageWrapper>
+              </Layout>
+            }
+          />
+
+          {/* Dashboard */}
+          <Route
+            path={ROUTES.DASHBOARD}
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PageWrapper>
+                    <Dashboard />
+                  </PageWrapper>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Host Session */}
+          <Route
+            path={ROUTES.HOST}
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PageWrapper>
+                    <HotSession />
+                  </PageWrapper>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Join Session */}
+          <Route
+            path={ROUTES.JOIN}
+            element={
+              <Layout>
+                <PageWrapper>
+                  <JoinSession />
+                </PageWrapper>
+              </Layout>
+            }
+          />
+
+          {/* 404 */}
+          <Route
+            path="*"
+            element={
+              <Layout showHeader={false} showFooter={false}>
+                <PageWrapper>
+                  <PageNotFound />
+                </PageWrapper>
+              </Layout>
+            }
+          />
+        </Routes>
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// 🔥 Main App
 const App = () => {
   return (
     <AuthProvider>
       <SessionProvider>
         <BrowserRouter>
+          {/* 🔥 Toaster UI */}
           <Toaster
             toastOptions={{
               duration: 3500,
@@ -72,75 +203,9 @@ const App = () => {
               },
             }}
           />
-          <div className="min-h-screen flex flex-col bg-gray-50">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <Layout>
-                    <Home />
-                  </Layout>
-                }
-              />
-              <Route
-                path={ROUTES.LOGIN}
-                element={
-                  <Layout showHeader={false} showFooter={false}>
-                    <Auth />
-                  </Layout>
-                }
-              />
 
-              <Route
-                path={ROUTES.REGISTER}
-                element={
-                  <Layout showHeader={false} showFooter={false}>
-                    <Auth />
-                  </Layout>
-                }
-              />
-
-              <Route
-                path={ROUTES.DASHBOARD}
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path={ROUTES.HOST}
-                element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <HotSession />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path={ROUTES.JOIN}
-                element={
-                  <Layout>
-                    <JoinSession />
-                  </Layout>
-                }
-              />
-
-              <Route
-                path="*"
-                element={
-                  <Layout showHeader={false} showFooter={false}>
-                    <PageNotFound />
-                  </Layout>
-                }
-              />
-            </Routes>
-          </div>
+          {/* 🔥 Animated Routes */}
+          <AnimatedRoutes />
         </BrowserRouter>
       </SessionProvider>
     </AuthProvider>
