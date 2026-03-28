@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
       setError(errorMessage);
 
       // error toast added
-      toast.error(errorMessage, {
+      toast.error("Email already Login", {
         style: {
           border: "1px solid rgba(239,68,68,0.35)",
         },
@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
         error?.response?.data?.error || error.message || "Login failed";
 
       setError(errorMessage);
-      toast.error(errorMessage); // ✅ show error toast
+      toast.error("Check email or password");
 
       return { success: false, error: errorMessage };
     } finally {

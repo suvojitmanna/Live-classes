@@ -17,7 +17,7 @@ import { Toaster } from "react-hot-toast";
 
 import { motion, AnimatePresence } from "framer-motion";
 
-// 🔥 Layout Component (Responsive + Animated)
+//  Layout Component (Responsive + Animated)
 function Layout({ children, showHeader = true, showFooter = true }) {
   return (
     <>
@@ -39,7 +39,7 @@ function Layout({ children, showHeader = true, showFooter = true }) {
   );
 }
 
-// 🔥 Page Animation Wrapper
+//  Page Animation Wrapper
 const PageWrapper = ({ children }) => {
   return (
     <motion.div
@@ -53,7 +53,7 @@ const PageWrapper = ({ children }) => {
   );
 };
 
-// 🔥 Animated Routes Component
+//  Animated Routes Component
 const AnimatedRoutes = () => {
   const location = useLocation();
 
@@ -154,13 +154,13 @@ const AnimatedRoutes = () => {
   );
 };
 
-// 🔥 Main App
+//  Main App
 const App = () => {
   return (
     <AuthProvider>
       <SessionProvider>
         <BrowserRouter>
-          {/* 🔥 Toaster UI */}
+          {/*  Toaster UI */}
           <Toaster
             toastOptions={{
               duration: 3500,
@@ -204,7 +204,7 @@ const App = () => {
             }}
           />
 
-          {/* 🔥 Animated Routes */}
+          {/*  Animated Routes */}
           <AnimatedRoutes />
         </BrowserRouter>
       </SessionProvider>
