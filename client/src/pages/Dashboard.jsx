@@ -51,6 +51,10 @@ const Dashboard = () => {
     navigate(ROUTES.JOIN);
   };
 
+  const onDeleteSession = (roomId) => {
+  setSessions((prev) => prev.filter((s) => s.roomId !== roomId));
+};
+
   const fadeUp = {
     hidden: { opacity: 0, y: 60 },
     visible: {
@@ -134,6 +138,7 @@ const Dashboard = () => {
             statusFilter={statusFilter}
             onFilterChange={setStatusFilter}
             onRejoinSession={handleRejoinSession}
+            onDeleteSession={onDeleteSession}
           />
         </motion.div>
       </motion.main>

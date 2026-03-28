@@ -293,7 +293,7 @@ export const leaveSession = async (req, res, next) => {
       });
     }
 
-    session.participants =  session.participants.filter(
+    session.participants = session.participants.filter(
       (p) => p.userId.toString() !== userId.toString(),
     );
 
@@ -304,6 +304,49 @@ export const leaveSession = async (req, res, next) => {
       data: {
         message: "Left session successfully",
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteSession = async (req, res, next) => {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.userId;
+
+    // Validate roomId
+    if (!roomId) {
+      return res.status(400).json({
+        success: false,
+        error: "Room Id is required",
+      });
+    }
+
+    // Find session
+    const session = await Session.findOne({ roomId });
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        error: "Session not found",
+      });
+    }
+
+    // Only host can delete
+    if (session.host.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: "Only host can delete this session",
+      });
+    }
+
+    // Delete session from DB
+    await Session.deleteOne({ _id: session._id });
+
+    return res.status(200).json({
+      success: true,
+      message: "Session deleted successfully",
     });
   } catch (error) {
     next(error);

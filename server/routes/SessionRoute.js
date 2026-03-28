@@ -7,6 +7,7 @@ import {
   endSession,
   JoinSession,
   listSession,
+  deleteSession,
 } from "../controllers/SessionController.js";
 import { protect } from "../middleware/auth.js";
 
@@ -57,5 +58,7 @@ router.post(
   handleValidationError,
   leaveSession,
 );
+
+router.delete("/delete/:roomId", protect, deleteSession);
 
 export default router;

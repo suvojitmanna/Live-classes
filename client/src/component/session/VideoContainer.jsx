@@ -115,7 +115,7 @@ const VideoContainer = ({
         <motion.div variants={item} className="mt-6 flex justify-center">
           <button
             onClick={onLeave}
-            className="px-8 py-3 font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md transition-all transform hover:scale-105"
+            className="px-8 py-3 font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md transition-all transform hover:scale-105 cursor-pointer"
           >
             {leaveButtonText || APP_CONFIG.SESSION_CONTENT.VIDEO.LEAVE_BUTTON}
           </button>

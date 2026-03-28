@@ -17,7 +17,8 @@ import ParticipantsList from "../component/session/ParticipantsList";
 const HostSession = () => {
   const [sessionInfo, setSessionInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [roomCopied, setRoomCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const { currentSession, getSession, clearSession } = useSession();
   const { user } = useAuth();
@@ -168,9 +169,9 @@ const HostSession = () => {
     if (roomId) {
       const success = await copyToClipboard(roomId);
       if (success) {
-        setCopied(true);
+        setRoomCopied(true);
         toast.success("Room ID copied 📋");
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => setRoomCopied(false), 2000);
       }
     }
   };
@@ -184,9 +185,9 @@ const HostSession = () => {
     const link = getShareableLink();
     const success = await copyToClipboard(link);
     if (success) {
-      setCopied(true);
+      setLinkCopied(true);
       toast.success("Invite link copied 🔗");
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setLinkCopied(false), 2000);
     }
   };
 
@@ -272,7 +273,8 @@ const HostSession = () => {
               shareableLink={getShareableLink()}
               status={sessionInfo.status}
               participantCount={sessionInfo.participantCount}
-              copied={copied}
+              roomCopied ={roomCopied}
+              linkCopied ={linkCopied}
               onCopyRoomId={handleCopyRoomId}
               onCopyLink={handleCopyLink}
             />

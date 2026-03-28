@@ -1,6 +1,11 @@
 import React from "react";
 import { APP_CONFIG } from "../../utils/constants.js";
-import { FaCircle, FaExternalLinkAlt, FaSpinner } from "react-icons/fa";
+import {
+  FaCircle,
+  FaExternalLinkAlt,
+  FaSpinner,
+  FaTrashAlt,
+} from "react-icons/fa";
 import { formatDate } from "../../utils/helper.js";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -11,6 +16,7 @@ const SessionList = ({
   statusFilter,
   onFilterChange,
   onRejoinSession,
+  onDeleteSession,
 }) => {
   const statusBadge = (status) => {
     const map = {
@@ -139,7 +145,6 @@ const SessionList = ({
               {/* Right Buttons */}
               <div className="flex items-center space-x-2">
                 {/* Rejoin */}
-
                 <button
                   onClick={() => {
                     if (s.status === "active") {
@@ -166,7 +171,7 @@ const SessionList = ({
                     }
                   }}
                   disabled={s.status !== "active"}
-                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {s.status === "active" ? (
                     <>
@@ -176,6 +181,81 @@ const SessionList = ({
                   ) : (
                     APP_CONFIG.DASHBOARD_CONTENT.SESSIONS_LIST.ENDED_BUTTON
                   )}
+                </button>
+
+                {/* Delete */}
+                <button
+                  onClick={() => {
+                    if (s.status !== "ended") return;
+
+                    toast((t) => (
+                      <div className="flex flex-col gap-2">
+                        <span className="font-medium">
+                          Delete this session?
+                        </span>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async () => {
+                              toast.dismiss(t.id);
+
+                              try {
+                                toast.loading("Deleting session...", {
+                                  id: "delete",
+                                  icon: "🗑️",
+                                });
+
+                                const token = localStorage.getItem("token");
+
+                                const res = await fetch(
+                                  `${import.meta.env.VITE_BASE_URL}/session/delete/${s.roomId}`,
+                                  {
+                                    method: "DELETE",
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                    },
+                                  },
+                                );
+
+                                const data = await res.json();
+
+                                if (!res.ok || !data.success) {
+                                  throw new Error(
+                                    data.error || "Delete failed",
+                                  );
+                                }
+
+                                toast.success("Session deleted 🗑️", {
+                                  id: "delete",
+                                });
+
+                                onDeleteSession(s.roomId);
+                              } catch (err) {
+                                toast.error(err.message || "Failed ❌", {
+                                  id: "delete",
+                                });
+                              }
+                            }}
+                            className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
+                          >
+                            Yes
+                          </button>
+
+                          <button
+                            onClick={() => toast.dismiss(t.id)}
+                            className="px-3 py-1 bg-gray-300 rounded cursor-pointer"
+                          >
+                            No
+                          </button>
+                        </div>
+                      </div>
+                    ));
+                  }}
+                  disabled={s.status === "active"} //
+                  className="inline-flex items-center px-4 py-2 ml-2 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-lg hover:from-red-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  Delete
+                  <FaTrashAlt className="w-4 h-4 ml-2" />
                 </button>
               </div>
             </motion.div>

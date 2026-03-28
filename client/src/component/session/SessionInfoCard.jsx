@@ -1,5 +1,5 @@
 import React from "react";
-import { FaCheck, FaCopy, FaInfoCircle } from "react-icons/fa";
+import { FaCheck, FaCopy, FaInfoCircle, FaRocket } from "react-icons/fa";
 import { APP_CONFIG } from "../../utils/constants";
 import { motion } from "framer-motion";
 
@@ -8,7 +8,8 @@ const SessionInfoCard = ({
   shareableLink,
   status,
   participantCount,
-  copied,
+  roomCopied,
+  linkCopied,
   onCopyRoomId,
   onCopyLink,
 }) => {
@@ -68,19 +69,19 @@ const SessionInfoCard = ({
               type="text"
               value={roomId}
               readOnly
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 font-mono text-lg tracking-wider text-center focus:border-blue-500 transition-colors"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 font-mono text-lg tracking-wider text-center focus:border-blue-500 transition-colors "
             />
           </div>
 
           <button
             onClick={onCopyRoomId}
             className={`px-5 py-3 rounded-lg font-medium transition-all ${
-              copied
+              roomCopied
                 ? "bg-green-500 text-white"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer" 
             }`}
           >
-            {copied ? (
+            {roomCopied ? (
               <span className="flex items-center">
                 <FaCheck className="w-4 h-4 mr-1" />
                 {APP_CONFIG.SESSION_CONTENT.INFO_CARD.COPIED_BUTTON}
@@ -111,12 +112,22 @@ const SessionInfoCard = ({
           <button
             onClick={onCopyLink}
             className={`px-5 py-3 rounded-lg font-medium transition-all ${
-              copied
+              linkCopied
                 ? "bg-green-500 text-white"
-                : "bg-green-600 text-white hover:bg-green-700"
+                : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
             }`}
           >
-            {copied ? "✓" : "Copy"}
+            {linkCopied ? (
+              <span className="flex items-center">
+                <FaCheck className="w-4 h-4 mr-1" />
+                {APP_CONFIG.SESSION_CONTENT.INFO_CARD.COPIED_BUTTON}
+              </span>
+            ) : (
+              <span className="flex items-center">
+                <FaRocket className="w-4 h-4 mr-1" />
+                {APP_CONFIG.SESSION_CONTENT.INFO_CARD.COPY_BUTTON}
+              </span>
+            )}
           </button>
         </div>
       </motion.div>
