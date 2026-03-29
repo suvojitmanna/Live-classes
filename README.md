@@ -1,127 +1,277 @@
-🚀 Live Classes — Premium Real-Time Video Learning Platform
-<p align="center"> <b>⚡ A production-ready, scalable live classroom built with MERN Stack & ZegoCloud</b> </p> <p align="center"> <a href="https://live-classes.vercel.app"> <img src="https://img.shields.io/badge/🌐 Live Demo-Open App-0ea5e9?style=for-the-badge"> </a> <a href="https://github.com/suvojitmanna/Live-classes"> <img src="https://img.shields.io/badge/📦 GitHub-Repository-111827?style=for-the-badge"> </a> </p> <p align="center"> <img src="https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&style=flat-square"/> <img src="https://img.shields.io/badge/Node.js-Backend-339933?logo=node.js&style=flat-square"/> <img src="https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb&style=flat-square"/> <img src="https://img.shields.io/badge/ZegoCloud-Video-ff6b6b?style=flat-square"/> <img src="https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel&style=flat-square"/> </p>
-🎬 Preview
-🏠 Dashboard
+# 🚀 Live Classes — Premium Real-Time Video Learning Platform
 
-🎥 Live Session
+<p align="center">
+  <b>⚡ A production-ready, scalable live classroom built with MERN Stack & ZegoCloud</b>
+</p>
 
-📱 Responsive Design
+<p align="center">
+  <a href="https://live-classes.vercel.app">
+    <img src="https://img.shields.io/badge/🌐 Live Demo-Open App-0ea5e9?style=for-the-badge">
+  </a>
+  <a href="https://github.com/suvojitmanna/Live-classes">
+    <img src="https://img.shields.io/badge/📦 GitHub-Repository-111827?style=for-the-badge">
+  </a>
+</p>
 
-⚠️ Replace these with your real screenshots for best impact
+<p align="center">
+  <img src="https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&style=flat-square"/>
+  <img src="https://img.shields.io/badge/Node.js-Backend-339933?logo=node.js&style=flat-square"/>
+  <img src="https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb&style=flat-square"/>
+  <img src="https://img.shields.io/badge/ZegoCloud-Video-ff6b6b?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel&style=flat-square"/>
+</p>
 
-✨ Overview
+---
 
-Live Classes is a real-time video learning platform where users can create, join, and manage live sessions seamlessly.
+## 🎬 Live Preview
 
-It is designed like a production-grade SaaS application with focus on:
+<p align="center">
+  <a href="https://live-classes.vercel.app">
+    <img src="https://img.shields.io/badge/▶️ Click to Open Live App-0ea5e9?style=for-the-badge">
+  </a>
+</p>
 
-⚡ Performance
-🎨 UI/UX
-📈 Scalability
-🎯 Features
-🎥 Real-Time Video
-Powered by ZegoCloud SDK
-Low latency streaming
-Multiple participants
-🔐 Authentication
-OTP-based login (Email / Phone)
-Secure user handling
-🧑‍🏫 Session Management
-Create / Join / Delete sessions
-Status handling:
-🟢 Active
-🔴 Ended
-🔗 Shareable Links
-Copy room link instantly
-Easy collaboration
-🎨 Premium UI
-Fully responsive design
-Smooth animations (Framer Motion)
-Modern clean layout
-🧠 Architecture
+---
+
+### 🏠 Dashboard
+
+<h2 align="center">📸 UI Preview</h2>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/76930d9b-672b-4f49-81d1-8ffb1a62404c" width="800" alt="Main UI"/>
+</p>
+
+<p align="center">
+  <b>✨ Live Classes Dashboard — Clean, Responsive & Real-Time</b>
+</p>
+
+<br/>
+
+<h3 align="center">⚡ Key Screens</h3>
+
+<p align="center">
+  <img src="YOUR_IMAGE_1" width="400" alt="Create Session"/>
+  <img src="YOUR_IMAGE_2" width="400" alt="Join Session"/>
+</p>
+
+<p align="center">
+  <img src="YOUR_IMAGE_3" width="400" alt="Video Call UI"/>
+  <img src="YOUR_IMAGE_4" width="400" alt="Mobile View"/>
+</p>
+
+### 🎥 Live Session
+
+<p align="center">
+  <img src="./screenshots/session.png" width="90%" />
+</p>
+
+### 📱 Mobile Responsive
+
+<p align="center">
+  <img src="./screenshots/mobile.png" width="40%" />
+</p>
+
+> ⚠️ Replace these with your real screenshots (very important 🚀)
+
+---
+
+## ✨ Overview
+
+**Live Classes** is a real-time video learning platform where users can create, join, and manage live sessions seamlessly.
+
+It is built like a **modern SaaS application** with focus on:
+
+* ⚡ Performance
+* 🎨 UI/UX
+* 📈 Scalability
+
+---
+
+## 🎯 Features
+
+### 🎥 Real-Time Video
+
+* Powered by ZegoCloud SDK
+* Low latency streaming
+* Multiple participants
+
+### 🔐 Authentication
+
+* OTP-based login (Email / Phone)
+* Secure user management
+
+### 🧑‍🏫 Session Management
+
+* Create / Join / Delete sessions
+* Status tracking:
+
+  * 🟢 Active
+  * 🔴 Ended
+
+### 🔗 Smart Sharing
+
+* Copy room link instantly
+* Join with shared link
+
+### 🎨 Premium UI/UX
+
+* Fully responsive design
+* Smooth animations (Framer Motion)
+* Clean modern layout
+
+---
+
+## 🧠 Architecture
+
+```text
 Frontend (React + Vite)
-        ↓
+↓
 Backend API (Node.js + Express)
-        ↓
+↓
 Database (MongoDB)
-        ↓
+↓
 ZegoCloud (Real-time Video Engine)
-🛠️ Tech Stack
-Category	Technology
-Frontend	React.js, Vite, Tailwind CSS
-Backend	Node.js, Express.js
-Database	MongoDB (Mongoose)
-Realtime	ZegoCloud
-Deployment	Vercel
-📂 Project Structure
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Category   | Technology                   |
+| ---------- | ---------------------------- |
+| Frontend   | React.js, Vite, Tailwind CSS |
+| Backend    | Node.js, Express.js          |
+| Database   | MongoDB (Mongoose)           |
+| Realtime   | ZegoCloud                    |
+| Deployment | Vercel                       |
+
+---
+
+## 📂 Project Structure
+
+```
 Live-classes/
-├── client/        # Frontend
-├── server/        # Backend
-├── screenshots/   # Images for README
+├── client/
+├── server/
+├── screenshots/
 ├── vercel.json
 └── README.md
-⚙️ Environment Variables
-Client (.env)
+```
+
+---
+
+## ⚙️ Environment Variables
+
+### Client (.env)
+
+```
 VITE_BASE_URL=http://localhost:5000/api
 VITE_ZEGO_APP_ID=your_app_id
 VITE_ZEGO_SERVER_SECRET=your_secret
-Server (.env)
+```
+
+### Server (.env)
+
+```
 PORT=5000
 MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_secret
-🚀 Installation
-1. Clone Repository
+```
+
+---
+
+## 🚀 Installation
+
+### Clone Repo
+
+```bash
 git clone https://github.com/suvojitmanna/Live-classes.git
 cd Live-classes
-2. Install Dependencies
+```
+
+### Install Dependencies
+
+```bash
 cd client && npm install
 cd ../server && npm install
-3. Run Project
+```
+
+### Run App
+
+```bash
+
 # Backend
+
 cd server
 npm run dev
 
 # Frontend
+
 cd client
 npm run dev
-🌐 Live Demo
+```
+
+---
+
+## 🌐 Live Demo
 
 👉 https://live-classes.vercel.app
 
-⚡ Performance Highlights
-⚡ Lightning-fast Vite build
-🌍 Deployed on Vercel CDN
-📱 Fully responsive UI
-🔄 Optimized API handling
-🔮 Future Improvements
-💬 Live chat system
-🎥 Session recording
-📊 Admin analytics dashboard
-🧑‍🎓 Role-based access (Teacher/Student)
-💳 Payment integration
-🤝 Contributing
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to GitHub
-5. Open a Pull Request
-👨‍💻 Author
+---
 
-Suvojit Manna
+## ⚡ Performance
 
-GitHub: https://github.com/suvojitmanna
-⭐ Support
+* ⚡ Fast Vite build
+* 🌍 Deployed on Vercel CDN
+* 📱 Fully responsive
+* 🔄 Optimized APIs
+
+---
+
+## 🔮 Future Enhancements
+
+* 💬 Live chat
+* 🎥 Recording
+* 📊 Analytics dashboard
+* 🧑‍🎓 Roles (Teacher/Student)
+* 💳 Payments
+
+---
+
+## 🤝 Contributing
+
+```
+
+1. Fork the repo
+2. Create a branch
+3. Commit changes
+4. Push & PR
+   ```
+
+---
+
+## 👨‍💻 Author
+
+**Suvojit Manna**
+
+* GitHub: https://github.com/suvojitmanna
+
+---
+
+## ⭐ Support
 
 If you like this project:
 
-👉 Give it a ⭐ on GitHub
-👉 Share it with others
+👉 Give it a ⭐
+👉 Share it 🚀
 
-🏁 Final Note
+---
 
-This project demonstrates:
+## 🏁 Final Note
 
-✔ Full-stack MERN development
-✔ Real-time system design
-✔ Clean UI/UX
-✔ Production deployment
+✔ Full-stack MERN project
+✔ Real-time architecture
+✔ Production-ready deployment
+✔ Premium UI/UX
+
+🔥 Perfect for portfolio & recruiters
