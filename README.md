@@ -32,7 +32,7 @@
 ### 📱 Mobile Responsive
 
 <p align="center">
-  <img width="389" height="1244" alt="merged-image-1774772464168" src="https://github.com/user-attachments/assets/9bbf9c35-d073-4024-b363-3622be1e7cee" />
+ <img width="395" height="1982" alt="merged-image-1774772804459" src="https://github.com/user-attachments/assets/a87bc702-dd87-4727-a16e-2e74f5061efe" />
 </p>
 
 > 
