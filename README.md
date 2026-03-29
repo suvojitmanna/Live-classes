@@ -8,7 +8,7 @@
   <a href="https://live-classes.vercel.app">
     <img src="https://img.shields.io/badge/🌐 Live Demo-Open App-0ea5e9?style=for-the-badge">
   </a>
-  <a href="https://github.com/suvojitmanna/Live-classes">
+  <a href="https://github.com/suvojitmanna/Live-classes/https://github.com/suvojitmanna?tab=repositories">
     <img src="https://img.shields.io/badge/📦 GitHub-Repository-111827?style=for-the-badge">
   </a>
 </p>
