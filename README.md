@@ -22,43 +22,6 @@
 </p>
 
 ---
-
-## 🎬 Live Preview
-
-<p align="center">
-  <a href="https://live-classes.vercel.app">
-    <img src="https://img.shields.io/badge/▶️ Click to Open Live App-0ea5e9?style=for-the-badge">
-  </a>
-</p>
-
----
-
-### 🏠 Dashboard
-
-<h2 align="center">📸 UI Preview</h2>
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/76930d9b-672b-4f49-81d1-8ffb1a62404c" width="800" alt="Main UI"/>
-</p>
-
-<p align="center">
-  <b>✨ Live Classes Dashboard — Clean, Responsive & Real-Time</b>
-</p>
-
-<br/>
-
-<h3 align="center">⚡ Key Screens</h3>
-
-<p align="center">
-  <img src="YOUR_IMAGE_1" width="400" alt="Create Session"/>
-  <img src="YOUR_IMAGE_2" width="400" alt="Join Session"/>
-</p>
-
-<p align="center">
-  <img src="YOUR_IMAGE_3" width="400" alt="Video Call UI"/>
-  <img src="YOUR_IMAGE_4" width="400" alt="Mobile View"/>
-</p>
-
 ### 🎥 Live Session
 
 <p align="center">
@@ -72,7 +35,7 @@
   <img width="389" height="1244" alt="merged-image-1774772464168" src="https://github.com/user-attachments/assets/9bbf9c35-d073-4024-b363-3622be1e7cee" />
 </p>
 
-> ⚠️ Replace these with your real screenshots (very important 🚀)
+> 
 
 ---
 
