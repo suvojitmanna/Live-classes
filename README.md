@@ -62,13 +62,14 @@
 ### 🎥 Live Session
 
 <p align="center">
-  <img src="./screenshots/session.png" width="90%" />
+  <img width="1902" height="1575" alt="merged-image-1774770805312" src="https://github.com/user-attachments/assets/96bbc7aa-b11a-4874-938c-551ace893e48" />
+
 </p>
 
 ### 📱 Mobile Responsive
 
 <p align="center">
-  <img src="./screenshots/mobile.png" width="40%" />
+  <img width="389" height="1244" alt="merged-image-1774772464168" src="https://github.com/user-attachments/assets/9bbf9c35-d073-4024-b363-3622be1e7cee" />
 </p>
 
 > ⚠️ Replace these with your real screenshots (very important 🚀)
