@@ -1,66 +1,46 @@
-<p align="center">
+<div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:4F46E5,100:06B6D4&height=230&section=header&text=Live%20Classes&fontSize=48&fontColor=ffffff&animation=fadeIn&desc=Premium%20Real-Time%20Video%20Learning%20Platform&descAlignY=75"/>
+# 🚀 Live Classes
 
-</p>
+### 🎥 Premium Real-Time Video Learning Platform
 
-<p align="center">
-
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=26&duration=3500&pause=1000&color=06B6D4&center=true&vCenter=true&width=900&lines=Production-Ready+MERN+Application;Real-Time+Video+Classes+with+ZegoCloud;Create+%7C+Join+%7C+Manage+Live+Sessions;Responsive+Modern+UI+%2B+Smooth+Animations;Scalable+Full-Stack+Architecture"/>
-
-</p>
+**Build • Host • Join • Learn — A Modern SaaS Live Classroom Experience**
 
 <p align="center">
 
 <a href="https://live-classes.vercel.app">
-<img src="https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-0EA5E9?style=for-the-badge"/>
-
+<img src="https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-0ea5e9?style=for-the-badge"/>
 </a>
 
 <a href="https://github.com/suvojitmanna/Live-classes">
 <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github"/>
-
 </a>
 
 </p>
 
----
+<p align="center">
 
-## 🏆 Project Badges
+<img src="https://img.shields.io/github/stars/suvojitmanna/Live-classes?style=flat-square"/>
+
+<img src="https://img.shields.io/github/forks/suvojitmanna/Live-classes?style=flat-square"/>
+
+<img src="https://img.shields.io/github/issues/suvojitmanna/Live-classes?style=flat-square"/>
+
+<img src="https://img.shields.io/github/license/suvojitmanna/Live-classes?style=flat-square"/>
+
+<img src="https://img.shields.io/github/last-commit/suvojitmanna/Live-classes?style=flat-square"/>
+
+</p>
 
 <p align="center">
 
-<img src="https://img.shields.io/badge/MERN-Stack-4CAF50?style=for-the-badge"/>
-
-<img src="https://img.shields.io/badge/React-Vite-61DAFB?style=for-the-badge&logo=react"/>
-
-<img src="https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js"/>
-
-<img src="https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge&logo=mongodb"/>
-
-<img src="https://img.shields.io/badge/ZegoCloud-RealTime-FF6B6B?style=for-the-badge"/>
-
-<img src="https://img.shields.io/badge/Deployment-Vercel-black?style=for-the-badge&logo=vercel"/>
-
-<img src="https://img.shields.io/badge/Status-Production-success?style=for-the-badge"/>
+<img src="https://komarev.com/ghpvc/?username=suvojitmanna&repo=Live-classes&label=Repository+Views&style=flat-square&color=blueviolet"/>
 
 </p>
 
 ---
 
-## 🌍 Live Demo
-
-🚀 **Live Application**
-
-👉 https://live-classes.vercel.app
-
-💻 **GitHub Repository**
-
-👉 https://github.com/suvojitmanna/Live-classes
-
----
-
-## 🧱 Built With
+### ⚙️ Built With
 
 <p align="center">
 
@@ -68,43 +48,225 @@
 
 </p>
 
+</div>
+
 ---
 
-## 📊 Repository Stats
+# 📖 Overview
+
+## 🌟 What is Live Classes?
+
+**Live Classes** is a production-ready **Full Stack Video Conferencing Platform** built using the **MERN Stack** and **ZegoCloud**.
+
+It enables users to create, join, and manage live video meetings with a fast, responsive, and modern user experience.
+
+The project follows a scalable SaaS architecture with secure authentication, REST APIs, cloud database integration, and real-time communication.
+
+It is suitable for:
+
+- 🎓 Online Classes
+- 💼 Team Meetings
+- 👨‍🏫 Virtual Training
+- 🎤 Webinars
+- 💻 Coding Interviews
+
+---
+
+# 🎯 Why This Project?
+
+Unlike basic video call demos, **Live Classes** demonstrates production-level development practices.
+
+### Highlights
+
+- ✅ Full Stack MERN Architecture
+- ✅ Real-Time Video Streaming
+- ✅ Secure Authentication
+- ✅ REST API Design
+- ✅ MongoDB Database
+- ✅ Cloud Deployment
+- ✅ Responsive UI
+- ✅ Scalable Folder Structure
+
+---
+
+# ✨ Features
+
+## 🎥 Real-Time Video
+
+- 📹 HD Video Meetings
+- 🎙 Crystal Clear Audio
+- 👥 Multi-Participant Support
+- ⚡ Low Latency Streaming
+- 🔄 Automatic Reconnection
+- 🎥 Powered by ZegoCloud SDK
+
+---
+
+## 🔐 Authentication
+
+- 🔑 JWT Authentication
+- 📧 Email Login
+- 👤 User Profile
+- 🚪 Secure Logout
+- 🔒 Protected Routes
+
+---
+
+## 🧑‍🏫 Meeting Management
+
+- ➕ Create Meeting
+- 🚪 Join Meeting
+- ❌ Delete Meeting
+- 📋 Meeting History
+- 🟢 Active Status
+- 🔴 Ended Status
+
+---
+
+## 🔗 Smart Sharing
+
+- 📋 Copy Meeting Link
+- 🌍 Share with Anyone
+- ⚡ One-Click Join
+- 🔗 Invite Participants
+
+---
+
+## 🎨 Modern UI
+
+- 📱 Fully Responsive
+- 🌙 Beautiful Interface
+- ✨ Smooth Animations
+- ⚡ Fast Navigation
+- 🎯 Clean Dashboard
+- 💎 Premium User Experience
+
+---
+
+# 📸 Screenshots
+
+## 🏠 Home Page
 
 <p align="center">
 
-<img src="https://img.shields.io/github/stars/suvojitmanna/Live-classes?style=for-the-badge"/>
-
-<img src="https://img.shields.io/github/forks/suvojitmanna/Live-classes?style=for-the-badge"/>
-
-<img src="https://img.shields.io/github/issues/suvojitmanna/Live-classes?style=for-the-badge"/>
-
-<img src="https://img.shields.io/github/license/suvojitmanna/Live-classes?style=for-the-badge"/>
-
-<img src="https://img.shields.io/github/last-commit/suvojitmanna/Live-classes?style=for-the-badge"/>
+<img width="1902" alt="Home Page"
+src="https://github.com/user-attachments/assets/96bbc7aa-b11a-4874-938c-551ace893e48"/>
 
 </p>
 
 ---
 
-## 👀 Visitors
+## 📱 Mobile Responsive
 
 <p align="center">
 
-<img src="https://komarev.com/ghpvc/?username=suvojitmanna&repo=Live-classes&label=Repository+Views&color=0EA5E9&style=for-the-badge"/>
+<img width="395"
+src="https://github.com/user-attachments/assets/a87bc702-dd87-4727-a16e-2e74f5061efe"/>
 
 </p>
 
 ---
 
-## ⭐ Key Highlights
+# 🏗️ System Architecture
 
-- 🎥 Real-Time Video Conferencing
-- 👨‍🏫 Live Classroom Management
-- 🔒 Secure JWT Authentication
-- ⚡ ZegoCloud Integration
-- 📱 Fully Responsive Design
+```text
+                    +----------------------------+
+                    |        Web Browser         |
+                    +-------------+--------------+
+                                  |
+                     React + Vite + Tailwind CSS
+                                  |
+                           Axios REST API
+                                  |
+                +-----------------+-----------------+
+                |                                   |
+         Express.js Backend                JWT Authentication
+                |                                   |
+         Business Logic Layer              Protected Routes
+                |
+          MongoDB Database
+                |
+        ZegoCloud Video Engine
+                |
+      Real-Time Audio & Video Streaming
+```
+
+---
+
+# 📊 Architecture Diagram
+
+```mermaid
+graph TD
+
+A[👤 User]
+
+B[⚛️ React Frontend]
+
+C[🚀 Express Backend]
+
+D[(🍃 MongoDB)]
+
+E[🔐 JWT Authentication]
+
+F[🎥 ZegoCloud]
+
+G[📹 Live Meeting]
+
+A --> B
+
+B --> C
+
+C --> D
+
+C --> E
+
+B --> F
+
+F --> G
+```
+
+---
+
+# 🔄 Application Workflow
+
+```text
+User
+ │
+ ▼
+Login / Register
+ │
+ ▼
+Dashboard
+ │
+ ├───────────────┐
+ │               │
+ ▼               ▼
+Create Room    Join Room
+ │               │
+ └──────┬────────┘
+        ▼
+Generate Meeting Link
+        ▼
+Connect to ZegoCloud
+        ▼
+Start Live Video Session
+        ▼
+End Meeting
+        ▼
+Meeting Status Updated
+```
+
+---
+
+# ⭐ Project Highlights
+
 - 🚀 Production-Ready MERN Stack
-- 🎨 Modern SaaS UI/UX
-- ☁️ Cloud Deployment
+- 🎥 Real-Time Video Conferencing
+- 🔒 Secure JWT Authentication
+- ⚡ High Performance APIs
+- 📱 Mobile Responsive
+- 🎨 Modern UI/UX
+- ☁️ Cloud Ready Deployment
+- 📈 Scalable Architecture
+
+---
