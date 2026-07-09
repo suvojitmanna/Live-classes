@@ -256,40 +256,6 @@ B --> F
 F --> G
 ---
 
-# 🔄 Application Workflow
-
-User
- │
- ▼
-Login / Register
- │
- ▼
-Dashboard
- │
- ├───────────────┐
- │               │
- ▼               ▼
-Create Room    Join Room
- │               │
- └──────┬────────┘
-        ▼
-Generate Meeting Link
-        ▼
-Connect to ZegoCloud
-        ▼
-Start Live Video Session
-        ▼
-End Meeting
-        ▼
-Meeting Status Updated
-## 👀 Visitors
-
-<p align="center">
-
-<img src="https://komarev.com/ghpvc/?username=suvojitmanna&repo=Live-classes&label=Repository+Views&color=0EA5E9&style=for-the-badge"/>
-
-</p>
-
 
 ---
 
@@ -305,3 +271,10 @@ Meeting Status Updated
 - 📈 Scalable Architecture
 
 ---
+## 👀 Visitors
+
+<p align="center">
+
+<img src="https://komarev.com/ghpvc/?username=suvojitmanna&repo=Live-classes&label=Repository+Views&color=0EA5E9&style=for-the-badge"/>
+
+</p>
