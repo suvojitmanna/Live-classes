@@ -225,56 +225,126 @@ src="https://github.com/user-attachments/assets/a87bc702-dd87-4727-a16e-2e74f506
 
 ---
 
-# 📊 Architecture Diagram
-
-graph TD
-
-A[👤 User]
-
-B[⚛️ React Frontend]
-
-C[🚀 Express Backend]
-
-D[(🍃 MongoDB)]
-
-E[🔐 JWT Authentication]
-
-F[🎥 ZegoCloud]
-
-G[📹 Live Meeting]
-
-A --> B
-
-B --> C
-
-C --> D
-
-C --> E
-
-B --> F
-
-F --> G
 ---
 
+# 📊 Architecture Diagram
+
+```mermaid
+graph TD
+
+    A[👤 User]
+
+    B[⚛️ React + Vite Frontend]
+
+    C[🚀 Express.js API Server]
+
+    D[🔐 JWT Authentication]
+
+    E[(🍃 MongoDB Atlas)]
+
+    F[🎥 ZegoCloud SDK]
+
+    G[📹 Live Video Session]
+
+    A -->|Access Platform| B
+
+    B -->|REST API| C
+
+    C -->|Authenticate| D
+
+    C -->|Store & Retrieve Data| E
+
+    B -->|Initialize Video Call| F
+
+    F -->|Create / Join Room| G
+```
 
 ---
 
 # ⭐ Project Highlights
 
-- 🚀 Production-Ready MERN Stack
-- 🎥 Real-Time Video Conferencing
-- 🔒 Secure JWT Authentication
-- ⚡ High Performance APIs
-- 📱 Mobile Responsive
-- 🎨 Modern UI/UX
+<table>
+<tr>
+<td width="50%">
+
+### 🚀 Performance
+
+- ⚡ Fast Vite Development
+- 🚀 Optimized REST APIs
 - ☁️ Cloud Ready Deployment
+- 📱 Mobile Responsive
+
+</td>
+
+<td width="50%">
+
+### 🎥 Core Features
+
+- 🎥 HD Live Video Classes
+- 🔒 Secure JWT Authentication
+- 🧑‍🏫 Create & Join Meetings
+- 🔗 Instant Meeting Sharing
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+### 💻 Tech Stack
+
+- ⚛️ React.js + Vite
+- 🚀 Node.js + Express
+- 🍃 MongoDB
+- 🎥 ZegoCloud SDK
+
+</td>
+
+<td>
+
+### 🎨 User Experience
+
+- ✨ Modern SaaS UI
+- 🌙 Clean Dashboard
+- 🎭 Smooth Animations
 - 📈 Scalable Architecture
 
+</td>
+</tr>
+</table>
+
 ---
-## 👀 Visitors
+
+# 📈 Project Statistics
+
+| Category | Details |
+|-----------|---------|
+| 🏗️ Architecture | MERN Stack |
+| 🎥 Video Engine | ZegoCloud |
+| 🔐 Authentication | JWT |
+| 🗄️ Database | MongoDB |
+| 📱 Responsive | ✅ Yes |
+| ☁️ Deployment | Vercel |
+| 🚀 Production Ready | ✅ Yes |
+
+---
+
+# 👀 Repository Visitors
 
 <p align="center">
 
-<img src="https://komarev.com/ghpvc/?username=suvojitmanna&repo=Live-classes&label=Repository+Views&color=0EA5E9&style=for-the-badge"/>
+<img src="https://komarev.com/ghpvc/?username=suvojitmanna&repo=Live-classes&label=Repository+Views&style=for-the-badge&color=0EA5E9"/>
 
 </p>
+
+---
+
+<div align="center">
+
+### ⭐ If you found this project useful, consider giving it a Star!
+
+Made with ❤️ by **Suvojit Manna**
+
+</div>
+
+---
