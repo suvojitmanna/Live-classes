@@ -2,34 +2,35 @@ import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import { APP_CONFIG, ROUTES } from "../../utils/constants";
 import { Link } from "react-router-dom";
-import { FaArrowRight } from "react-icons/fa";
+import { FaArrowRight, FaVideo } from "react-icons/fa";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
 
 const CTASection = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-500 to-indigo-600">
-      <div className="max-w-4xl mx-auto text-center">
-        {/* Heading */}
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white">
+      <div className="max-w-4xl mx-auto text-center space-y-6">
+        <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center mx-auto border border-white/20 shadow-lg">
+          <FaVideo className="w-6 h-6 text-white" />
+        </div>
+
         <motion.h2
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
-          className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6"
+          transition={{ duration: 0.5 }}
+          className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight"
         >
           {APP_CONFIG.HOME_CONTENT.CTA.HEADING}
         </motion.h2>
 
-        {/* Description */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, amount: 0.3 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8"
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-sm sm:text-base md:text-lg text-blue-100 max-w-2xl mx-auto"
         >
           {APP_CONFIG.HOME_CONTENT.CTA.DESCRIPTION.replace(
             "{APP_NAME}",
@@ -37,55 +38,28 @@ const CTASection = () => {
           )}
         </motion.p>
 
-        {/* Button */}
-
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: false, amount: 0.3 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
+          className="pt-2"
         >
           {isAuthenticated ? (
             <Link
               to={ROUTES.DASHBOARD}
-              onClick={() =>
-                toast("Taking you to dashboard 📊", {
-                  icon: "🚀",
-                  style: {
-                    background: "rgba(59,130,246,0.12)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(59,130,246,0.3)",
-                    borderRadius: "12px",
-                    padding: "10px 14px",
-                    color: "black",
-                  },
-                })
-              }
-              className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-100 font-semibold text-base sm:text-lg shadow-lg transition-all transform hover:scale-105"
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-blue-600 rounded-full hover:bg-gray-100 font-semibold text-sm shadow-xl transition-all transform hover:scale-105"
             >
-              {APP_CONFIG.HOME_CONTENT.CTA.BUTTON_AUTHENTICATED}
-              <FaArrowRight className="ml-2" />
+              <span>{APP_CONFIG.HOME_CONTENT.CTA.BUTTON_AUTHENTICATED}</span>
+              <FaArrowRight className="ml-2 w-3.5 h-3.5" />
             </Link>
           ) : (
             <Link
               to={ROUTES.REGISTER}
-              onClick={() =>
-                toast("Start your journey ✨", {
-                  icon: "🚀",
-                  style: {
-                    background: "rgba(34,197,94,0.12)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(34,197,94,0.3)",
-                    borderRadius: "12px",
-                    padding: "10px 14px",
-                    color: "black",
-                  },
-                })
-              }
-              className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-100 font-semibold text-base sm:text-lg shadow-lg transition-all transform hover:scale-105"
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-blue-600 rounded-full hover:bg-gray-100 font-semibold text-sm shadow-xl transition-all transform hover:scale-105"
             >
-              {APP_CONFIG.HOME_CONTENT.CTA.BUTTON_GUEST}
-              <FaArrowRight className="ml-2" />
+              <span>{APP_CONFIG.HOME_CONTENT.CTA.BUTTON_GUEST}</span>
+              <FaArrowRight className="ml-2 w-3.5 h-3.5" />
             </Link>
           )}
         </motion.div>

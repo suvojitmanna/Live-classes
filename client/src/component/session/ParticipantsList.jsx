@@ -75,7 +75,7 @@ const ParticipantsList = ({ participants, hostName }) => {
       </div>
 
       <div className="space-y-3">
-        {/*  Host */}
+        {/// Host */}
         {hostParticipants.map((p, index) => (
           <motion.div
             key={index}
@@ -96,7 +96,7 @@ const ParticipantsList = ({ participants, hostName }) => {
           </motion.div>
         ))}
 
-        {/*  Others */}
+        {/// Others */}
         {otherParticipants.length > 0 && (
           <>
             <div className="pt-1 border-t border-gray-200 text-sm text-gray-500">

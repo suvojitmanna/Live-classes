@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { API_ENDPOINTS } from "../utils/constants";
 import api from "../service/api";
 import toast from "react-hot-toast";
@@ -21,8 +27,14 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const response = await api.get(API_ENDPOINTS.AUTH.ME);
-        setUser(response.data?.data?.user);
-      } catch {
+        if (response.data?.data?.user) {
+          setUser(response.data.data.user);
+        } else {
+          localStorage.removeItem("token");
+          setUser(null);
+        }
+      } catch (err) {
+        console.warn("Session validation error:", err.message);
         localStorage.removeItem("token");
         setUser(null);
       } finally {
@@ -33,136 +45,219 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  //Register with Email & Password -> Requires OTP Verification
   const register = async (name, email, password) => {
     try {
       setError(null);
       setLoading(true);
 
       const t = toast.loading("Creating account...");
-
       const response = await api.post(API_ENDPOINTS.AUTH.REGISTER, {
         name,
         email,
         password,
       });
+      toast.success("Verification code sent to your email 📧", { id: t });
 
-      const { token, user: loggedInUser } = response.data.data;
-
-      localStorage.setItem("token", token);
-      setUser(loggedInUser);
-
-      setTimeout(() => {
-        toast.success("Account created successfully 🎉", {
-          id: t,
-          icon: "🟢",
-          style: {
-            background: "rgba(22,163,74,0.15)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(34,197,94,0.4)",
-            borderRadius: "14px",
-            padding: "12px 16px",
-            boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
-            color: "black",
-          },
-        });
-      }, 700);
-
-      return { success: true, user: loggedInUser };
-    } catch (error) {
+      return {
+        success: true,
+        data: response.data.data,
+        message: response.data.message,
+      };
+    } catch (err) {
       const errorMessage =
-        error?.response?.data?.error || error.message || "Register failed";
-
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Registration failed";
       setError(errorMessage);
-
-      // error toast added
-      toast.error("Email already Login", {
-        style: {
-          border: "1px solid rgba(239,68,68,0.35)",
-        },
-      });
-
+      toast.error(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   };
+
+  //Verify 6-Digit Email OTP
+  const verifyEmail = async (email, otp) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const response = await api.post(API_ENDPOINTS.AUTH.VERIFY_EMAIL, {
+        email,
+        otp,
+      });
+
+      const { token, user: loggedInUser } = response.data.data;
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+      if (loggedInUser) {
+        setUser(loggedInUser);
+      }
+
+      return { success: true, user: loggedInUser };
+    } catch (err) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Verification failed";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //Resend Verification OTP
+  const resendOtp = async (email) => {
+    try {
+      setError(null);
+      const response = await api.post(API_ENDPOINTS.AUTH.RESEND_OTP, { email });
+      return { success: true, message: response.data.message };
+    } catch (err) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Failed to resend OTP";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  //Login with Email & Password
   const login = async (email, password) => {
     try {
       setError(null);
       setLoading(true);
 
       const t = toast.loading("Logging in...");
-
       const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, {
         email,
         password,
       });
-
       const { token, user: loggedInUser } = response.data.data;
 
       localStorage.setItem("token", token);
       setUser(loggedInUser);
-
-      // small delay = premium feel
-      setTimeout(() => {
-        toast.success("Welcome back! 🎉", {
-          id: t,
-          icon: "🟢",
-          style: {
-            background: "rgba(22,163,74,0.15)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(34,197,94,0.4)",
-            borderRadius: "14px",
-            padding: "12px 16px",
-            boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
-            color: "black",
-          },
-        });
-      }, 700);
-
-      return { success: true };
-    } catch (error) {
+      toast.success("Welcome back! 🎉", { id: t });
+      return { success: true, user: loggedInUser };
+    } catch (err) {
+      const resData = err?.response?.data;
       const errorMessage =
-        error?.response?.data?.error || error.message || "Login failed";
+        resData?.message ||
+        resData?.error ||
+        err.message ||
+        "Invalid email or password";
 
       setError(errorMessage);
-      toast.error("Check email or password");
 
+      if (resData?.requiresVerification) {
+        toast.error("Please verify your email with the 6-digit code");
+        return {
+          success: false,
+          requiresVerification: true,
+          email: resData.email || email,
+          error: errorMessage,
+        };
+      }
+
+      toast.error(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = () => {
-    const t = toast.loading("Logging out...");
+  //Google OAuth Login / Signup
+  const googleLogin = async (credential, userInfo) => {
+    try {
+      setError(null);
+      setLoading(true);
+      const t = toast.loading("Authenticating with Google...");
+      const response = await api.post(API_ENDPOINTS.AUTH.GOOGLE, {
+        credential,
+        userInfo,
+      });
 
+      const { token, user: loggedInUser } = response.data.data;
+
+      localStorage.setItem("token", token);
+      setUser(loggedInUser);
+      toast.success("Signed in with Google successfully! 🎉", { id: t });
+      return { success: true, user: loggedInUser };
+    } catch (err) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Google authentication failed";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //Forgot Password - Send Reset Code
+  const forgotPassword = async (email) => {
+    try {
+      setError(null);
+      const response = await api.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
+        email,
+      });
+      return { success: true, message: response.data.message };
+    } catch (err) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Failed to send reset code";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  //Reset Password with Verified OTP
+  const resetPassword = async (email, otp, newPassword) => {
+    try {
+      setError(null);
+      const response = await api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
+        email,
+        otp,
+        newPassword,
+      });
+      const { token, user: loggedInUser } = response.data.data || {};
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+      if (loggedInUser) {
+        setUser(loggedInUser);
+      }
+
+      return { success: true, message: response.data.message };
+    } catch (err) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err.message ||
+        "Password reset failed";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  //Logout
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setUser(null);
     setError(null);
-
-    setTimeout(() => {
-      toast.success("Logged out successfully 👋", {
-        id: t,
-        icon: "🔒",
-        style: {
-          background: "rgba(239,68,68,0.12)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(239,68,68,0.35)",
-          borderRadius: "14px",
-          padding: "12px 16px",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
-          color: "black",
-        },
-      });
-
-      // better UX: delay + optional navigation
-      setTimeout(() => {
-        window.location.replace("/login");
-        // OR navigate("/login");
-      }, 800);
-    }, 500);
-  };
+    toast.success("Logged out successfully 👋");
+  }, []);
 
   const value = {
     user,
@@ -170,7 +265,12 @@ export const AuthProvider = ({ children }) => {
     error,
     isAuthenticated: !!user,
     register,
+    verifyEmail,
+    resendOtp,
     login,
+    googleLogin,
+    forgotPassword,
+    resetPassword,
     logout,
     setError,
   };

@@ -8,8 +8,7 @@ export const SessionProvider = ({ children }) => {
   const [currentSession, setCurrentSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  //Create a new session
+  
   const createSession = useCallback(async () => {
     try {
       setError(null);
@@ -29,7 +28,7 @@ export const SessionProvider = ({ children }) => {
     }
   }, []);
 
-  //join session
+  // Join session
   const joinSession = useCallback(async (roomId) => {
     try {
       setError(null);
@@ -48,8 +47,6 @@ export const SessionProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
-
-  //get session
 
   const getSession = useCallback(async (roomId) => {
     try {
@@ -70,8 +67,6 @@ export const SessionProvider = ({ children }) => {
     }
   }, []);
 
-  //leave session
-
   const leaveSession = useCallback(async (roomId) => {
     try {
       setError(null);
@@ -90,8 +85,24 @@ export const SessionProvider = ({ children }) => {
     }
   }, []);
 
-  //list sessions
+  // Delete session
+  const deleteSession = useCallback(async (roomId) => {
+    try {
+      setError(null);
+      setLoading(true);
+      await api.delete(`/session/${roomId}`);
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.error || "Failed to delete session";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  // List sessions
   const listSessions = useCallback(async (status = "all") => {
     try {
       setError(null);
@@ -124,6 +135,7 @@ export const SessionProvider = ({ children }) => {
     joinSession,
     getSession,
     leaveSession,
+    deleteSession,
     listSessions,
     clearSession,
     setError,

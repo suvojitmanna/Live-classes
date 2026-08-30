@@ -5,9 +5,14 @@ const sessionSchema = new mongoose.Schema(
     roomId: {
       type: String,
       required: true,
-      unquie: true,
+      unique: true,
       trim: true,
       index: true,
+    },
+    title: {
+      type: String,
+      default: "Live Class Meeting",
+      trim: true,
     },
     host: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,8 +25,20 @@ const sessionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "ended"],
+      enum: ["active", "ended", "expired"],
       default: "active",
+    },
+    requireAdmission: {
+      type: Boolean,
+      default: true,
+    },
+    isLinkDisabled: {
+      type: Boolean,
+      default: false,
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
     },
     participants: [
       {
@@ -34,9 +51,21 @@ const sessionSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+        avatar: {
+          type: String,
+          default: "",
+        },
+        isHost: {
+          type: Boolean,
+          default: false,
+        },
         joinedAt: {
           type: Date,
           default: Date.now,
+        },
+        leftAt: {
+          type: Date,
+          default: null,
         },
       },
     ],
@@ -46,25 +75,34 @@ const sessionSchema = new mongoose.Schema(
     },
     endedAt: {
       type: Date,
-      default: Date.now,
+      default: null,
     },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
+sessionSchema.methods.isExpired = function () {
+  if (this.isLinkDisabled || this.status === "expired") return true;
+  if (this.expiresAt && new Date(this.expiresAt) <= new Date()) return true;
+  return false;
+};
+
 sessionSchema.statics.generateRoomId = function () {
-  const chars = "ABDSICJHWLDICHWELFHNWFBC03830483048304";
-  let roomId = "";
-  for (let i = 0; i < 12; i++) {
-    roomId += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return roomId;
+  const chars = "abcdefghijklmnopqrstuvwxyz";
+  const genPart = (length) => {
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+  return `${genPart(3)}-${genPart(4)}-${genPart(3)}`;
 };
 
 sessionSchema.statics.roomIdExists = async function (roomId) {
-  const session = await this.findOne({ roomId });
+  const session = await this.findOne({ roomId: roomId.toLowerCase().trim() });
   return !!session;
 };
 

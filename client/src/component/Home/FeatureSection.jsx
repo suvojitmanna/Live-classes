@@ -12,33 +12,34 @@ const iconMap = {
 
 const FeatureSection = () => {
   return (
-    <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 scroll-mt-20">
+    <section
+      id="features"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-100 transition-colors scroll-mt-20"
+    >
       <div className="max-w-7xl mx-auto">
-        {/* Heading */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          viewport={{ once: false, amount: 0.2 }} //   scroll trigger
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.2 }}
           className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             {APP_CONFIG.HOME_CONTENT.FEATURES.HEADING}
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-xl sm:max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-xl sm:max-w-2xl mx-auto">
             {APP_CONFIG.HOME_CONTENT.FEATURES.DESCRIPTION}
           </p>
         </motion.div>
 
-        {/* Grid */}
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: false, amount: 0.2 }} //  triggers on scroll
+          viewport={{ once: false, amount: 0.2 }}
           variants={{
             hidden: {},
             visible: {
-              transition: { staggerChildren: 0.15 },
+              transition: { staggerChildren: 0.12 },
             },
           }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
@@ -50,17 +51,15 @@ const FeatureSection = () => {
               <motion.div
                 key={index}
                 variants={{
-                  hidden: { opacity: 0, y: 40 },
+                  hidden: { opacity: 0, y: 30 },
                   visible: { opacity: 1, y: 0 },
                 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                whileHover={{ y: -8, scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all"
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                whileHover={{ y: -6, scale: 1.02 }}
+                className="bg-gray-50 dark:bg-[#282a2d] rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl border border-gray-200 dark:border-gray-700/80 transition-all"
               >
-                {/* Icon */}
                 <div
-                  className={`w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br ${
+                  className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br ${
                     feature.color === "blue"
                       ? "from-blue-500 to-blue-600"
                       : feature.color === "green"
@@ -68,20 +67,16 @@ const FeatureSection = () => {
                         : feature.color === "purple"
                           ? "from-purple-500 to-purple-600"
                           : "from-indigo-500 to-indigo-600"
-                  } rounded-xl flex items-center justify-center text-white mb-5 sm:mb-6`}
+                  } rounded-2xl flex items-center justify-center text-white mb-5 sm:mb-6 shadow-md`}
                 >
                   {IconComponent && (
-                    <IconComponent className="w-6 h-6 sm:w-8 sm:h-8" />
+                    <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
                   )}
                 </div>
-
-                {/* Title */}
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                   {feature.title}
                 </h3>
-
-                {/* Description */}
-                <p className="text-sm sm:text-base text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>

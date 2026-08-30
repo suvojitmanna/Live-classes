@@ -12,47 +12,43 @@ const VideoContainer = ({
   containerRef,
   isJoined,
   userHasJoined,
-  zegoError,
-  zegoLoading,
+  error,
+  loading,
   onFullscreen,
   onLeave,
   leaveButtonText,
 }) => {
-  //  Container animation
   const container = {
-    hidden: { opacity: 0, y: 60, scale: 0.97 },
+    hidden: { opacity: 0, y: 40, scale: 0.98 },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        duration: 0.5,
+        duration: 0.4,
         ease: "easeOut",
-        staggerChildren: 0.12,
+        staggerChildren: 0.1,
       },
     },
   };
 
-  //  Child elements
   const item = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.4 },
+      transition: { duration: 0.3 },
     },
   };
 
   return (
     <motion.div
-      className="bg-white rounded-xl shadow-lg border p-6 border-gray-100"
+      className="bg-white rounded-2xl shadow-lg border p-6 border-gray-100"
       variants={container}
       initial="hidden"
-      animate="visible" //  page refresh
-      whileInView="visible" //  scroll
-      viewport={{ once: false, amount: 0.3 }}
+      animate="visible"
     >
-      {/* Header */}
+      {///Header */}
       <motion.div
         className="flex items-center justify-between mb-4"
         variants={item}
@@ -70,38 +66,40 @@ const VideoContainer = ({
             </span>
           )}
 
-          <button
-            onClick={onFullscreen}
-            className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <FaExpand className="inline-block mr-1" />
-            {APP_CONFIG.SESSION_CONTENT.VIDEO.FULLSCREEN}
-          </button>
+          {onFullscreen && (
+            <button
+              onClick={onFullscreen}
+              className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <FaExpand className="inline-block mr-1" />
+              {APP_CONFIG.SESSION_CONTENT.VIDEO.FULLSCREEN}
+            </button>
+          )}
         </div>
       </motion.div>
 
-      {/* Error */}
-      {zegoError && (
+      {///Error */}
+      {error && (
         <motion.div
           variants={item}
-          className="mb-4 bg-red-50 border-1-4 border-red-500 text-red-700 p-4 rounded-lg"
+          className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg"
         >
           <div className="flex items-center">
             <FaExclamationCircle className="w-5 h-5 mr-2" />
-            <span className="text-sm">{zegoError}</span>
+            <span className="text-sm">{error}</span>
           </div>
         </motion.div>
       )}
 
-      {/* Video Area */}
+      {///Video Area */}
       <motion.div
         variants={item}
         ref={containerRef}
-        className="w-full h-[calc(100vh-180px)] rounded-xl overflow-hidden bg-gray-900 border-2 border-gray-200 shadow-inner"
+        className="w-full h-[calc(100vh-220px)] rounded-2xl overflow-hidden bg-gray-900 border-2 border-gray-200 shadow-inner flex items-center justify-center text-white"
       />
 
-      {/* Loading */}
-      {zegoLoading && (
+      {///Loading */}
+      {loading && (
         <motion.div variants={item} className="mt-4 text-center">
           <div className="inline-flex items-center text-gray-600">
             <FaSpinner className="animate-spin h-5 w-5 mr-2" />
@@ -110,12 +108,12 @@ const VideoContainer = ({
         </motion.div>
       )}
 
-      {/* Leave Button */}
-      {onLeave && !userHasJoined && (
+      {///Leave Button */}
+      {onLeave && (
         <motion.div variants={item} className="mt-6 flex justify-center">
           <button
             onClick={onLeave}
-            className="px-8 py-3 font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md transition-all transform hover:scale-105 cursor-pointer"
+            className="px-8 py-3 font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:from-red-600 hover:to-red-700 shadow-md transition-all transform hover:scale-105 cursor-pointer"
           >
             {leaveButtonText || APP_CONFIG.SESSION_CONTENT.VIDEO.LEAVE_BUTTON}
           </button>

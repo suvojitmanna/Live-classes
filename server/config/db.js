@@ -1,13 +1,19 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const connectdb = async() =>{
-    try {
-        const conn = await mongoose.connect(process.env.MONGO_URI)
-        console.log('Mongodb connect',conn.connection.host);
-    } catch (error) {
-        console.error(error.message)
-        process.exit(1)
-    }
-}
+const connectdb = async () => {
+  try {
+    console.log(
+      "MONGO_URI:",
+      process.env.MONGO_URI?.replace(/\/\/.*@/, "/*:***@")
+    );
 
-export default connectdb
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+
+    console.log("✅ MongoDB connected:", conn.connection.host);
+  } catch (error) {
+    console.error("❌ MongoDB error:", error.message);
+    process.exit(1);
+  }
+};
+
+export default connectdb;

@@ -16,7 +16,6 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-        {/* Grid */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -29,7 +28,6 @@ const Footer = () => {
           }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
         >
-          {/* LEFT */}
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 30 },
@@ -74,7 +72,6 @@ const Footer = () => {
             </div>
           </motion.div>
 
-          {/* QUICK LINKS */}
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 30 },
@@ -107,7 +104,6 @@ const Footer = () => {
             </ul>
           </motion.div>
 
-          {/* SUPPORT */}
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 30 },
@@ -132,7 +128,6 @@ const Footer = () => {
           </motion.div>
         </motion.div>
 
-        {/* Bottom */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

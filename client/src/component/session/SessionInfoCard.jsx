@@ -47,7 +47,7 @@ const SessionInfoCard = ({
       whileInView="visible" //  scroll
       viewport={{ once: false, amount: 0.3 }}
     >
-      {/* Header */}
+      {///Header */}
       <motion.div className="flex items-center mb-6" variants={item}>
         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
           <FaInfoCircle className="w-6 h-6 text-white" />
@@ -57,7 +57,7 @@ const SessionInfoCard = ({
         </h2>
       </motion.div>
 
-      {/* Room ID */}
+      {///Room ID */}
       <motion.div className="mb-5" variants={item}>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           {APP_CONFIG.SESSION_CONTENT.INFO_CARD.ROOM_ID_LABEL}
@@ -96,7 +96,7 @@ const SessionInfoCard = ({
         </div>
       </motion.div>
 
-      {/* Shareable Link */}
+      {///Shareable Link */}
       <motion.div className="mb-5" variants={item}>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           {APP_CONFIG.SESSION_CONTENT.INFO_CARD.SHAREABLE_LINK_LABEL}
@@ -132,7 +132,7 @@ const SessionInfoCard = ({
         </div>
       </motion.div>
 
-      {/* Stats */}
+      {///Stats */}
       <motion.div
         className="grid grid-cols-2 gap-4 pt-5 border-t border-gray-200"
         variants={item}

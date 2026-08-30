@@ -20,7 +20,6 @@ const colorMap = {
 const FeaturesGrid = () => {
   const features = APP_CONFIG.FEATURES.slice(0, 4);
 
-  //  Container (stagger grid items)
   const container = {
     hidden: {},
     visible: {
@@ -30,7 +29,6 @@ const FeaturesGrid = () => {
     },
   };
 
-  //  Each feature card
   const item = {
     hidden: { opacity: 0, y: 60, scale: 0.95 },
     visible: {

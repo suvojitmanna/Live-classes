@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
 const ActionCard = ({ onCreateSession, onJoinSession, creating }) => {
-  //  Container (stagger both cards)
   const container = {
     hidden: {},
     visible: {
@@ -15,7 +14,6 @@ const ActionCard = ({ onCreateSession, onJoinSession, creating }) => {
     },
   };
 
-  // Each card animation
   const item = {
     hidden: { opacity: 0, y: 60, scale: 0.95 },
     visible: {
@@ -34,7 +32,6 @@ const ActionCard = ({ onCreateSession, onJoinSession, creating }) => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
     >
-      {/* Host Card */}
       <motion.div
         variants={item}
         className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all transform hover:translate-y-5 border border-gray-100 "
@@ -74,6 +71,7 @@ const ActionCard = ({ onCreateSession, onJoinSession, creating }) => {
                 id: t,
                 icon: "⛔",
               });
+              console.log(err);
             }
           }}
           disabled={creating}
@@ -90,7 +88,6 @@ const ActionCard = ({ onCreateSession, onJoinSession, creating }) => {
         </button>
       </motion.div>
 
-      {/* Join Card */}
       <motion.div
         variants={item}
         className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all transform hover:translate-y-5 border border-gray-100"
@@ -131,6 +128,7 @@ const ActionCard = ({ onCreateSession, onJoinSession, creating }) => {
                 id: t,
                 icon: "⛔",
               });
+              console.log(err);
             }
           }}
           className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all transform hover:scale-[1.02] shadow-md cursor-pointer"

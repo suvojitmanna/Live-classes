@@ -50,7 +50,6 @@ const SessionList = ({
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
         <div>
           <h3 className="text-2xl yexy-gray-900 font-bold">
@@ -81,7 +80,6 @@ const SessionList = ({
         </div>
       </div>
 
-      {/* Loading / Empty */}
       {loading && sessions.length === 0 ? (
         <div className="flex items-center text-gray-600">
           <FaSpinner className="animate-spin h-5 w-5 mr-2" />
@@ -105,7 +103,6 @@ const SessionList = ({
               variants={item}
               className="border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:shadow-md transition-shadow"
             >
-              {/* Left */}
               <div>
                 <div className="flex items-center space-x-3">
                   <span
@@ -116,35 +113,28 @@ const SessionList = ({
                     <FaCircle className="w-2 h-2 mr-2" />
                     {s.status}
                   </span>
-
                   {s.isHost && (
                     <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                       Host
                     </span>
                   )}
                 </div>
-
                 <div className="mt-2 text-lg font-semibold text-gray-900">
                   Room : {s.roomId}
                 </div>
-
                 <div className="text-sm text-gray-500 mt-1">
                   Host: {s.hostName}
                 </div>
-
                 <div className="text-sm text-gray-600">
                   Participants: {s.participantCount}
                 </div>
-
                 <div className="text-sm text-gray-500 mt-1">
                   Started: {s.startedAt ? formatDate(s.startedAt) : "N/A"}
                   {s.endedAt && <>. Ended: {formatDate(s.endedAt)}</>}
                 </div>
               </div>
 
-              {/* Right Buttons */}
               <div className="flex items-center space-x-2">
-                {/* Rejoin */}
                 <button
                   onClick={() => {
                     if (s.status === "active") {
@@ -183,11 +173,9 @@ const SessionList = ({
                   )}
                 </button>
 
-                {/* Delete */}
                 <button
                   onClick={() => {
                     if (s.status !== "ended") return;
-
                     toast((t) => (
                       <div className="flex flex-col gap-2">
                         <span className="font-medium">
@@ -198,7 +186,6 @@ const SessionList = ({
                           <button
                             onClick={async () => {
                               toast.dismiss(t.id);
-
                               try {
                                 toast.loading("Deleting session...", {
                                   id: "delete",
@@ -224,11 +211,9 @@ const SessionList = ({
                                     data.error || "Delete failed",
                                   );
                                 }
-
                                 toast.success("Session deleted 🗑️", {
                                   id: "delete",
                                 });
-
                                 onDeleteSession(s.roomId);
                               } catch (err) {
                                 toast.error(err.message || "Failed ❌", {
@@ -240,7 +225,6 @@ const SessionList = ({
                           >
                             Yes
                           </button>
-
                           <button
                             onClick={() => toast.dismiss(t.id)}
                             className="px-3 py-1 bg-gray-300 rounded cursor-pointer"

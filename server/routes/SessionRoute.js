@@ -8,12 +8,12 @@ import {
   JoinSession,
   listSession,
   deleteSession,
+  expireSession,
 } from "../controllers/SessionController.js";
 import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-//validation middleware
 const handleValidationError = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -22,43 +22,35 @@ const handleValidationError = (req, res, next) => {
       error: errors.array()[0].msg,
     });
   }
-
   next();
 };
 
 router.use(protect);
 
-//GET /api/session/list
-
 router.get("/list", listSession);
 
-//POST /api/session/create
 router.post("/create", createSession);
 
-//POST /api/session/join
-router.post(
-  "/join",
-  [body("roomId").trim().notEmpty().withMessage("RoomId is required")],
+router.post("/join", [
+  body("roomId").trim().notEmpty().withMessage("Room ID is required")],
   handleValidationError,
-  JoinSession,
+  JoinSession
 );
 
-//GET /api/session/:roomId
+router.post("/expire/:roomId", expireSession);
 
-router.get("/:roomId", getSession);
-
-//POST /api/session/end
 router.post("/end/:sessionId", endSession);
 
-//POST /api/auth/login
-
-router.post(
-  "/leave",
-  [body("roomId").trim().notEmpty().withMessage("RoomId is required")],
+router.post("/leave", [
+  body("roomId").trim().notEmpty().withMessage("Room ID is required")],
   handleValidationError,
-  leaveSession,
+  leaveSession
 );
 
-router.delete("/delete/:roomId", protect, deleteSession);
+router.delete("/delete/:roomId", deleteSession);
+
+router.delete("/:roomId", deleteSession);
+
+router.get("/:roomId", getSession);
 
 export default router;
