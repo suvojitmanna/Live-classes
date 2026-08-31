@@ -39,6 +39,7 @@ const MeetingControls = ({
   activeSidebar,
   unreadChatCount,
   participantCount,
+  pendingKnocksCount = 0,
   layoutMode,
   isHost,
   roomPermissions = {
@@ -423,11 +424,15 @@ const MeetingControls = ({
               }`}
           >
             <FaUsers className="w-5 h-5" />
-            {participantCount > 0 && (
+            {pendingKnocksCount > 0 ? (
+              <span className="absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500 text-white animate-bounce shadow-md">
+                {pendingKnocksCount}
+              </span>
+            ) : participantCount > 0 ? (
               <span className="absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-gray-200 dark:bg-[#3c4043] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">
                 {participantCount}
               </span>
-            )}
+            ) : null}
           </button>
         </Tooltip>
 

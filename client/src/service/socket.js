@@ -6,7 +6,9 @@ export const getSocket = () => {
   if (!socket) {
     const socketUrl =
       import.meta.env.VITE_SOCKET_URL ||
-      (window.location.port === "5173"
+      (import.meta.env.VITE_BASE_URL
+        ? import.meta.env.VITE_BASE_URL.replace(/\/api\/?$/, "")
+        : window.location.port === "5173"
         ? "http://localhost:5000"
         : window.location.origin);
 

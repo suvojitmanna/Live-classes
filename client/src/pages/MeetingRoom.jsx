@@ -16,6 +16,7 @@ import ParticipantPanel from "../component/meeting/ParticipantPanel";
 import MeetingDetailsPanel from "../component/meeting/MeetingDetailsPanel";
 import ActivitiesPanel from "../component/meeting/ActivitiesPanel";
 import HostControlsPanel from "../component/meeting/HostControlsPanel";
+import KnockNotificationModal from "../component/meeting/KnockNotificationModal";
 import MeetingSettings from "../component/meeting/MeetingSettings";
 import LeaveConfirmModal from "../component/meeting/LeaveConfirmModal";
 import KeyboardShortcutsModal from "../component/meeting/KeyboardShortcutsModal";
@@ -328,44 +329,6 @@ const MeetingRoom = () => {
         onOpenDetails={() => handleToggleSidebar("details")}
       />
 
-      {pendingKnocks.length > 0 && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 max-w-lg w-full px-4 space-y-2">
-          {pendingKnocks.map((knock) => (
-            <div
-              key={knock.socketId}
-              className="bg-white dark:bg-[#282a2d] border-2 border-blue-500 dark:border-[#8ab4f8] text-gray-900 dark:text-white rounded-2xl shadow-2xl p-4 flex items-center justify-between gap-4 backdrop-blur-md animate-bounce"
-            >
-              <div className="flex items-center gap-3 truncate">
-                <Avatar name={knock.userName} avatar={knock.avatar} size="sm" />
-                <div className="truncate">
-                  <div className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
-                    {knock.userName}
-                  </div>
-                  <div className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">
-                    Asking to join this meeting...
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => admitUser(knock.socketId)}
-                  className="px-4 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-bold shadow-md transition-all cursor-pointer"
-                >
-                  Admit
-                </button>
-                <button
-                  onClick={() => denyUser(knock.socketId)}
-                  className="px-3.5 py-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-all cursor-pointer"
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       <FloatingReactions reactions={reactions} />
       <MeetingCaptions
         isEnabled={isCaptionsOn}
@@ -486,6 +449,14 @@ const MeetingRoom = () => {
           />
         )}
       </div>
+      {isHost && (
+        <KnockNotificationModal
+          pendingKnocks={pendingKnocks}
+          onAdmit={admitUser}
+          onDeny={denyUser}
+          onOpenParticipants={() => setActiveSidebar("participants")}
+        />
+      )}
 
       <MeetingControls
         roomId={roomId}
@@ -497,6 +468,7 @@ const MeetingRoom = () => {
         activeSidebar={activeSidebar}
         unreadChatCount={unreadChatCount}
         participantCount={1 + peers.length}
+        pendingKnocksCount={pendingKnocks.length}
         layoutMode={layoutMode}
         isHost={isHost}
         roomPermissions={roomPermissions}
