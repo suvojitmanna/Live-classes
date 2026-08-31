@@ -147,7 +147,7 @@ const ChatPanel = ({
           <button
             type="submit"
             disabled={!inputText.trim() || isChatDisabled}
-            className="absolute right-1.5 p-2 rounded-full bg-[#1a73e8] disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white disabled:text-gray-500 transition-all cursor-pointer"
+            className="absolute right-1.5 p-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white disabled:bg-gray-200 dark:disabled:bg-white/10 disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 disabled:hover:scale-100"
             aria-label="Send message"
           >
             <FaPaperPlane className="w-3 h-3" />

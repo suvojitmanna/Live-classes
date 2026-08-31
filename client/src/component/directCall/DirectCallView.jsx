@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaMicrophone,
@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import Avatar from "../common/Avatar";
 import { useDirectCall } from "../../context/DirectCallContext";
+import { useAuth } from "../../context/AuthContext";
 
 const DirectCallView = () => {
   const {
@@ -30,19 +31,95 @@ const DirectCallView = () => {
     endActiveCall,
   } = useDirectCall();
 
+  const { user } = useAuth();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
 
-  useEffect(() => {
-    if (localVideoRef.current && localStream) {
-      localVideoRef.current.srcObject = localStream;
-    }
-  }, [localStream]);
+  const [hasValidLocalVideo, setHasValidLocalVideo] = useState(false);
+  const [hasValidRemoteVideo, setHasValidRemoteVideo] = useState(false);
+  const [localPlaying, setLocalPlaying] = useState(false);
+  const [remotePlaying, setRemotePlaying] = useState(false);
 
   useEffect(() => {
-    if (remoteVideoRef.current && remoteStream) {
-      remoteVideoRef.current.srcObject = remoteStream;
+    if (!localStream || isVideoOff) {
+      setHasValidLocalVideo(false);
+      setLocalPlaying(false);
+      return;
     }
+
+    const videoTracks = localStream.getVideoTracks();
+    if (videoTracks.length === 0) {
+      setHasValidLocalVideo(false);
+      setLocalPlaying(false);
+      return;
+    }
+
+    const activeTrack = videoTracks[0];
+    const checkTrackState = () => {
+      const isValid = activeTrack.readyState === "live" && activeTrack.enabled;
+      setHasValidLocalVideo(isValid);
+      if (!isValid) setLocalPlaying(false);
+    };
+
+    checkTrackState();
+
+    activeTrack.addEventListener("ended", checkTrackState);
+    activeTrack.addEventListener("mute", checkTrackState);
+    activeTrack.addEventListener("unmute", checkTrackState);
+
+    if (localVideoRef.current) {
+      if (localVideoRef.current.srcObject !== localStream) {
+        localVideoRef.current.srcObject = localStream;
+      }
+      localVideoRef.current.play().catch(() => {});
+    }
+
+    return () => {
+      activeTrack.removeEventListener("ended", checkTrackState);
+      activeTrack.removeEventListener("mute", checkTrackState);
+      activeTrack.removeEventListener("unmute", checkTrackState);
+    };
+  }, [localStream, isVideoOff]);
+
+  useEffect(() => {
+    if (!remoteStream) {
+      setHasValidRemoteVideo(false);
+      setRemotePlaying(false);
+      return;
+    }
+
+    const videoTracks = remoteStream.getVideoTracks();
+    if (videoTracks.length === 0) {
+      setHasValidRemoteVideo(false);
+      setRemotePlaying(false);
+      return;
+    }
+
+    const activeTrack = videoTracks[0];
+    const checkTrackState = () => {
+      const isValid = activeTrack.readyState === "live" && activeTrack.enabled;
+      setHasValidRemoteVideo(isValid);
+      if (!isValid) setRemotePlaying(false);
+    };
+
+    checkTrackState();
+
+    activeTrack.addEventListener("ended", checkTrackState);
+    activeTrack.addEventListener("mute", checkTrackState);
+    activeTrack.addEventListener("unmute", checkTrackState);
+
+    if (remoteVideoRef.current) {
+      if (remoteVideoRef.current.srcObject !== remoteStream) {
+        remoteVideoRef.current.srcObject = remoteStream;
+      }
+      remoteVideoRef.current.play().catch(() => {});
+    }
+
+    return () => {
+      activeTrack.removeEventListener("ended", checkTrackState);
+      activeTrack.removeEventListener("mute", checkTrackState);
+      activeTrack.removeEventListener("unmute", checkTrackState);
+    };
   }, [remoteStream]);
 
   if (callState !== "connected" && callState !== "connecting") {
@@ -58,11 +135,12 @@ const DirectCallView = () => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const hasRemoteVideo = remoteStream && remoteStream.getVideoTracks().some((t) => t.enabled && t.readyState === "live");
+  const showRemoteVideo = remotePlaying && hasValidRemoteVideo;
+  const showLocalVideo = localPlaying && hasValidLocalVideo && !isVideoOff;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex flex-col bg-[#121316] text-white select-none overflow-hidden font-sans">
+      <div className="fixed inset-0 z-[100] flex flex-col bg-[#121316] text-white select-none overflow-hidden font-sans">
         <header className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/80 via-black/40 to-transparent px-4 sm:px-6 flex items-center justify-between z-30 pointer-events-auto">
           <div className="flex items-center gap-3">
             <Avatar name={peer.name || "Peer"} avatar={peer.avatar} size="sm" />
@@ -93,15 +171,27 @@ const DirectCallView = () => {
           {isVideo ? (
             <div className="w-full h-full max-w-6xl max-h-[82vh] relative rounded-3xl overflow-hidden bg-[#1a1c1e] border border-white/10 shadow-2xl flex items-center justify-center">
               <video
-                ref={remoteVideoRef}
+                ref={(el) => {
+                  remoteVideoRef.current = el;
+                  if (el && remoteStream) {
+                    if (el.srcObject !== remoteStream) {
+                      el.srcObject = remoteStream;
+                    }
+                    el.play().catch(() => {});
+                  }
+                }}
                 autoPlay
                 playsInline
+                onLoadedData={() => setRemotePlaying(true)}
+                onPlaying={() => setRemotePlaying(true)}
+                onPause={() => setRemotePlaying(false)}
+                onEnded={() => setRemotePlaying(false)}
                 className={`w-full h-full object-cover transition-opacity duration-300 ${
-                  hasRemoteVideo ? "opacity-100" : "opacity-0 absolute pointer-events-none"
+                  showRemoteVideo ? "opacity-100" : "opacity-0 absolute pointer-events-none"
                 }`}
               />
 
-              {!hasRemoteVideo && (
+              {!showRemoteVideo && (
                 <div className="flex flex-col items-center justify-center space-y-4">
                   <div
                     className={`relative p-2 rounded-full transition-all duration-300 ${
@@ -120,29 +210,56 @@ const DirectCallView = () => {
                 </div>
               )}
 
+              {/* Bottom Right Draggable User Inset (Self View) */}
               <motion.div
                 drag
                 dragConstraints={{ left: -300, right: 300, top: -200, bottom: 200 }}
-                className="absolute bottom-6 right-6 w-36 sm:w-56 aspect-video bg-[#1a1c1e] rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl z-20 cursor-grab active:cursor-grabbing group"
+                className="absolute bottom-6 right-6 w-36 sm:w-56 aspect-video bg-[#1a1c1e] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl z-20 cursor-grab active:cursor-grabbing group select-none"
               >
                 <video
-                  ref={localVideoRef}
+                  ref={(el) => {
+                    localVideoRef.current = el;
+                    if (el && localStream && !isVideoOff) {
+                      if (el.srcObject !== localStream) {
+                        el.srcObject = localStream;
+                      }
+                      el.play().catch(() => {});
+                    }
+                  }}
                   autoPlay
                   playsInline
                   muted
-                  className={`w-full h-full object-cover transform scale-x-[-1] ${
-                    isVideoOff ? "hidden" : "block"
+                  onLoadedData={() => setLocalPlaying(true)}
+                  onPlaying={() => setLocalPlaying(true)}
+                  onPause={() => setLocalPlaying(false)}
+                  onEnded={() => setLocalPlaying(false)}
+                  className={`w-full h-full object-cover transform scale-x-[-1] transition-opacity duration-300 ${
+                    showLocalVideo ? "opacity-100" : "opacity-0 pointer-events-none absolute"
                   }`}
                 />
 
-                {isVideoOff && (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900">
-                    <Avatar name="You" size="sm" />
-                    <span className="text-[10px] text-gray-400 mt-1">Camera off</span>
+                {!showLocalVideo && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-[#1e2023] to-[#141517] dark:from-[#202124] dark:to-[#17181a]">
+                    <div className={`relative flex items-center justify-center transition-all duration-300 ${isLocalSpeaking ? "scale-105" : "scale-100"}`}>
+                      {isLocalSpeaking && (
+                        <div className="absolute -inset-2 rounded-full bg-emerald-500/30 animate-ping" />
+                      )}
+                      <div className={`rounded-full transition-all duration-300 ${isLocalSpeaking ? "ring-2 ring-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.5)]" : ""}`}>
+                        <Avatar name={user?.name || "You"} avatar={user?.avatar} size="md" />
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-gray-400 mt-1.5 font-medium">
+                      {isVideoOff ? "Camera off" : "Camera starting..."}
+                    </span>
                   </div>
                 )}
 
-                <div className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-medium text-white/90 border border-white/10 flex items-center gap-1">
+                <div className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-medium text-white/90 border border-white/10 flex items-center gap-1.5 shadow-sm">
+                  {isAudioMuted ? (
+                    <FaMicrophoneSlash className="w-2.5 h-2.5 text-red-400" />
+                  ) : (
+                    <FaMicrophone className="w-2.5 h-2.5 text-emerald-400" />
+                  )}
                   <span>You</span>
                   {isLocalSpeaking && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
                 </div>
