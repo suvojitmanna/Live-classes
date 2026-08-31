@@ -412,13 +412,33 @@ export const useWebRTC = () => {
     setError(null);
 
     const socket = getSocket();
-    if (!socket.connected) socket.connect();
-
     userRef.current = currentUser;
-    socket.emit("knock-to-join", {
-      roomId: targetRoomId.toLowerCase().trim(),
-      user: currentUser,
-    });
+    const cleanRoomId = targetRoomId.toLowerCase().trim().replace(/[\s_]+/g, "-");
+
+    const doEmit = () => {
+      socket.emit("knock-to-join", {
+        roomId: cleanRoomId,
+        user: currentUser,
+      });
+    };
+
+    if (socket.connected) {
+      doEmit();
+    } else {
+      socket.connect();
+      const timer = setTimeout(() => {
+        if (!socket.connected) {
+          setLoading(false);
+          setKnockStatus("idle");
+          toast.error("Real-time server connection timed out. Please check backend on Render.");
+        }
+      }, 7000);
+
+      socket.once("connect", () => {
+        clearTimeout(timer);
+        doEmit();
+      });
+    }
   }, []);
 
   const cancelKnock = useCallback((targetRoomId) => {

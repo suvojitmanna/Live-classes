@@ -219,6 +219,7 @@ export const registerMeetingSocket = (io, socket) => {
     if (!roomId || !user) return;
 
     const normalizedRoomId = normalizeRoomId(roomId);
+    console.log(`🔔 [Socket] Received knock-to-join on room: "${normalizedRoomId}" from: "${user.name || "Guest"}" (${socket.id})`);
 
     try {
       const session = await Session.findOne({
@@ -271,6 +272,9 @@ export const registerMeetingSocket = (io, socket) => {
       userId: user.id || socket.id,
     });
 
+    socket.emit("knock-registered", { success: true, roomId: normalizedRoomId });
+
+    console.log(`📢 [Socket] Emitting user-knocking to room: "${normalizedRoomId}" (Host/Peers in room: ${rooms.get(normalizedRoomId)?.size || 0})`);
     io.to(normalizedRoomId).emit("user-knocking", knockData);
 
     const knocks = Array.from(pendingKnocks.get(normalizedRoomId).values());

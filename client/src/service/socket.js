@@ -4,13 +4,17 @@ let socket = null;
 
 export const getSocket = () => {
   if (!socket) {
-    const socketUrl =
+    const rawUrl =
       import.meta.env.VITE_SOCKET_URL ||
-      (import.meta.env.VITE_BASE_URL
-        ? import.meta.env.VITE_BASE_URL.replace(/\/api\/?$/, "")
-        : window.location.port === "5173"
+      import.meta.env.VITE_BASE_URL ||
+      (window.location.port === "5173"
         ? "http://localhost:5000"
         : window.location.origin);
+
+    // Strip trailing /api and any trailing slashes
+    const socketUrl = rawUrl.replace(/\/api\/?$/, "").replace(/\/+$/, "");
+
+    console.log(`🔗 [Socket.IO] Connecting to WebSocket Server: ${socketUrl}`);
 
     socket = io(socketUrl, {
       transports: ["websocket", "polling"],

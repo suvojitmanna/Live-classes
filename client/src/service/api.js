@@ -1,7 +1,18 @@
 import axios from "axios";
 
+// Automatically sanitize Base URL
+const rawBaseUrl =
+  import.meta.env.VITE_BASE_URL ||
+  (window.location.port === "5173"
+    ? "http://localhost:5000/api"
+    : `${window.location.origin}/api`);
+
+const cleanBaseUrl = rawBaseUrl.endsWith("/api")
+  ? rawBaseUrl
+  : rawBaseUrl.replace(/\/+$/, "") + "/api";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: cleanBaseUrl,
   headers: { "Content-Type": "application/json" },
 });
 
