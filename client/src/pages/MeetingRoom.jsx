@@ -84,6 +84,16 @@ const MeetingRoom = () => {
     toggleVideo,
     toggleScreenShare,
     toggleRaiseHand,
+    roomPermissions,
+    updateRoomPermissions,
+    muteAllParticipants,
+    stopAllVideo,
+    controlParticipant,
+    polls,
+    createPoll,
+    votePoll,
+    closePoll,
+    deletePoll,
   } = useWebRTC();
 
   const currentUserId = user?.id || user?._id;
@@ -421,6 +431,8 @@ const MeetingRoom = () => {
             onSendMessage={sendChatMessage}
             onClose={() => setActiveSidebar(null)}
             currentUserId={user?.id || user?._id}
+            isHost={isHost}
+            roomPermissions={roomPermissions}
           />
         )}
 
@@ -434,6 +446,7 @@ const MeetingRoom = () => {
             pendingKnocks={pendingKnocks}
             onAdmit={admitUser}
             onDeny={denyUser}
+            onControlParticipant={controlParticipant}
             isHost={isHost}
             hostName={sessionDetails?.hostName}
             onClose={() => setActiveSidebar(null)}
@@ -449,12 +462,25 @@ const MeetingRoom = () => {
         )}
 
         {activeSidebar === "activities" && (
-          <ActivitiesPanel onClose={() => setActiveSidebar(null)} />
+          <ActivitiesPanel
+            polls={polls}
+            onCreatePoll={createPoll}
+            onVotePoll={votePoll}
+            onClosePoll={closePoll}
+            onDeletePoll={deletePoll}
+            isHost={isHost}
+            currentUserId={user?.id || user?._id}
+            onClose={() => setActiveSidebar(null)}
+          />
         )}
 
         {activeSidebar === "host" && (
           <HostControlsPanel
             roomId={roomId}
+            roomPermissions={roomPermissions}
+            onUpdatePermissions={updateRoomPermissions}
+            onMuteAll={muteAllParticipants}
+            onStopAllVideo={stopAllVideo}
             onSetLinkExpiration={setLinkExpiration}
             onClose={() => setActiveSidebar(null)}
           />
@@ -473,6 +499,7 @@ const MeetingRoom = () => {
         participantCount={1 + peers.length}
         layoutMode={layoutMode}
         isHost={isHost}
+        roomPermissions={roomPermissions}
         toggleAudio={toggleAudio}
         toggleVideo={toggleVideo}
         toggleScreenShare={toggleScreenShare}

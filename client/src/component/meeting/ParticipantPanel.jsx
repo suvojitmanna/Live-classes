@@ -11,6 +11,8 @@ import {
   FaHandPaper,
   FaUserClock,
   FaCheck,
+  FaUserMinus,
+  FaEllipsisV,
 } from "react-icons/fa";
 import Avatar from "../common/Avatar";
 import toast from "react-hot-toast";
@@ -24,12 +26,13 @@ const ParticipantPanel = ({
   pendingKnocks = [],
   onAdmit,
   onDeny,
+  onControlParticipant,
   isHost,
-  hostName,
   onClose,
   roomId,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeMenuId, setActiveMenuId] = useState(null);
 
   const allParticipants = [
     {
@@ -105,7 +108,6 @@ const ParticipantPanel = ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {/* Waiting to Join Section for Host */}
         {isHost && pendingKnocks && pendingKnocks.length > 0 && (
           <div className="space-y-2 p-2.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/60 animate-fade-in">
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#1a73e8] dark:text-[#8ab4f8]">
@@ -156,7 +158,7 @@ const ParticipantPanel = ({
         {filteredParticipants.map((participant) => (
           <div
             key={participant.id}
-            className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors"
+            className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#282a2d] transition-colors relative group"
           >
             <div className="flex items-center gap-2.5 truncate">
               <Avatar
@@ -206,6 +208,60 @@ const ParticipantPanel = ({
                   className="w-3.5 h-3.5 text-green-500 dark:text-green-400"
                   title="Microphone on"
                 />
+              )}
+
+              {/* Host Individual Moderation Menu */}
+              {isHost && participant.id !== "local" && (
+                <div className="relative ml-1">
+                  <button
+                    onClick={() =>
+                      setActiveMenuId(
+                        activeMenuId === participant.id ? null : participant.id
+                      )
+                    }
+                    className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer"
+                    title="Participant options"
+                  >
+                    <FaEllipsisV className="w-3 h-3" />
+                  </button>
+
+                  {activeMenuId === participant.id && (
+                    <div className="absolute right-0 top-8 z-50 w-44 bg-white dark:bg-[#1f1f1f] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-1.5 space-y-1 animate-fade-in text-xs">
+                      <button
+                        onClick={() => {
+                          onControlParticipant?.(participant.id, "mute");
+                          setActiveMenuId(null);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 text-left transition-colors cursor-pointer"
+                      >
+                        <FaMicrophoneSlash className="w-3.5 h-3.5 text-red-500" />
+                        <span>Mute participant</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onControlParticipant?.(participant.id, "stop-video");
+                          setActiveMenuId(null);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 text-left transition-colors cursor-pointer"
+                      >
+                        <FaVideoSlash className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Turn off camera</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onControlParticipant?.(participant.id, "kick");
+                          setActiveMenuId(null);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-left transition-colors cursor-pointer font-medium"
+                      >
+                        <FaUserMinus className="w-3.5 h-3.5" />
+                        <span>Remove from call</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

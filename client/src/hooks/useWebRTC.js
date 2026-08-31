@@ -22,6 +22,13 @@ export const useWebRTC = () => {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [reactions, setReactions] = useState([]);
   const [activeSpeakerId, setActiveSpeakerId] = useState(null);
+  const [roomPermissions, setRoomPermissions] = useState({
+    allowMic: true,
+    allowCamera: true,
+    allowScreenShare: true,
+    allowChat: true,
+  });
+  const [polls, setPolls] = useState([]);
 
   const [devices, setDevices] = useState({
     audioInputs: [],
@@ -42,6 +49,26 @@ export const useWebRTC = () => {
   const analysersRef = useRef(new Map());
   const animationFrameRef = useRef(null);
   const userRef = useRef(null);
+  const roomIdRef = useRef(null);
+  const roomPermissionsRef = useRef({
+    allowMic: true,
+    allowCamera: true,
+    allowScreenShare: true,
+    allowChat: true,
+  });
+  const isHostRef = useRef(false);
+
+  useEffect(() => {
+    roomIdRef.current = roomId;
+  }, [roomId]);
+
+  useEffect(() => {
+    roomPermissionsRef.current = roomPermissions;
+  }, [roomPermissions]);
+
+  useEffect(() => {
+    isHostRef.current = isHost;
+  }, [isHost]);
 
   useEffect(() => {
     localStreamRef.current = localStream;
@@ -750,6 +777,112 @@ export const useWebRTC = () => {
       }
     });
 
+    // Room Permissions Updated by Host
+    socket.on("room-permissions-updated", (perms) => {
+      if (!perms) return;
+      setRoomPermissions(perms);
+
+      const amHost = isHostRef.current;
+      if (!amHost) {
+        if (perms.allowMic === false && localStreamRef.current) {
+          const audioTracks = localStreamRef.current.getAudioTracks();
+          audioTracks.forEach((t) => {
+            t.enabled = false;
+          });
+          setIsAudioMuted(true);
+        }
+        if (perms.allowCamera === false && localStreamRef.current) {
+          const videoTracks = localStreamRef.current.getVideoTracks();
+          videoTracks.forEach((t) => {
+            t.enabled = false;
+          });
+          setIsVideoOff(true);
+        }
+        if (perms.allowScreenShare === false && screenStreamRef.current) {
+          screenStreamRef.current.getTracks().forEach((t) => t.stop());
+          screenStreamRef.current = null;
+          setScreenStream(null);
+          setIsScreenSharing(false);
+        }
+      }
+    });
+
+    // Forced Remote Actions from Host
+    socket.on("force-mute", () => {
+      if (!isHostRef.current && localStreamRef.current) {
+        const audioTracks = localStreamRef.current.getAudioTracks();
+        audioTracks.forEach((t) => {
+          t.enabled = false;
+        });
+        setIsAudioMuted(true);
+        toast.error("The host muted your microphone 🔇", { duration: 4000 });
+        if (roomIdRef.current) {
+          socket.emit("toggle-audio", {
+            roomId: roomIdRef.current,
+            isMuted: true,
+          });
+        }
+      }
+    });
+
+    socket.on("force-stop-video", () => {
+      if (!isHostRef.current && localStreamRef.current) {
+        const videoTracks = localStreamRef.current.getVideoTracks();
+        videoTracks.forEach((t) => {
+          t.enabled = false;
+        });
+        setIsVideoOff(true);
+        toast.error("The host turned off your camera 📷", { duration: 4000 });
+        if (roomIdRef.current) {
+          socket.emit("toggle-video", {
+            roomId: roomIdRef.current,
+            isVideoOff: true,
+          });
+        }
+      }
+    });
+
+    socket.on("force-stop-screen", () => {
+      if (!isHostRef.current) {
+        if (screenStreamRef.current) {
+          screenStreamRef.current.getTracks().forEach((t) => t.stop());
+          screenStreamRef.current = null;
+          setScreenStream(null);
+        }
+        setIsScreenSharing(false);
+        toast.error("The host stopped your screen share 🖥️", { duration: 4000 });
+        if (roomIdRef.current) {
+          socket.emit("screen-share", {
+            roomId: roomIdRef.current,
+            isScreenSharing: false,
+          });
+        }
+      }
+    });
+
+    socket.on("force-kick", ({ message }) => {
+      toast.error(message || "You were removed from the meeting by the host.", {
+        duration: 5000,
+      });
+      window.location.href = "/dashboard";
+    });
+
+    // Live Polls / Voting
+    socket.on("polls-sync", ({ polls: syncedPolls }) => {
+      if (Array.isArray(syncedPolls)) {
+        setPolls(syncedPolls);
+      }
+    });
+
+    socket.on("new-poll-created", (newPoll) => {
+      if (newPoll && newPoll.question) {
+        toast(`📊 New Poll: "${newPoll.question}"`, {
+          duration: 5000,
+          icon: "📊",
+        });
+      }
+    });
+
     // User Left
     socket.on("user-left", ({ socketId, userName }) => {
       removePeer(socketId);
@@ -759,6 +892,13 @@ export const useWebRTC = () => {
     });
 
     return () => {
+      socket.off("polls-sync");
+      socket.off("new-poll-created");
+      socket.off("room-permissions-updated");
+      socket.off("force-mute");
+      socket.off("force-stop-video");
+      socket.off("force-stop-screen");
+      socket.off("force-kick");
       socket.off("room-participants-update");
       socket.off("meeting-deleted");
       socket.off("link-expired-error");
@@ -787,6 +927,11 @@ export const useWebRTC = () => {
   ]);
 
   const toggleAudio = useCallback(() => {
+    if (!isHostRef.current && roomPermissionsRef.current.allowMic === false && isAudioMuted) {
+      toast.error("The host has disabled microphones for participants 🔇");
+      return;
+    }
+
     if (localStreamRef.current) {
       const audioTracks = localStreamRef.current.getAudioTracks();
       if (audioTracks.length > 0) {
@@ -805,6 +950,11 @@ export const useWebRTC = () => {
   }, [isAudioMuted, roomId]);
 
   const toggleVideo = useCallback(() => {
+    if (!isHostRef.current && roomPermissionsRef.current.allowCamera === false && isVideoOff) {
+      toast.error("The host has disabled cameras for participants 📷");
+      return;
+    }
+
     if (localStreamRef.current) {
       const videoTracks = localStreamRef.current.getVideoTracks();
       if (videoTracks.length > 0) {
@@ -823,6 +973,11 @@ export const useWebRTC = () => {
   }, [isVideoOff, roomId]);
 
   const toggleScreenShare = useCallback(async () => {
+    if (!isHostRef.current && roomPermissionsRef.current.allowScreenShare === false && !isScreenSharing) {
+      toast.error("The host has disabled screen sharing for participants 🖥️");
+      return;
+    }
+
     const socket = getSocket();
 
     if (isScreenSharing) {
@@ -920,6 +1075,12 @@ export const useWebRTC = () => {
   const sendChatMessage = useCallback(
     (text) => {
       if (!text || !text.trim() || !roomId) return;
+
+      if (!isHostRef.current && roomPermissionsRef.current.allowChat === false) {
+        toast.error("The host has disabled in-call chat 💬");
+        return;
+      }
+
       const socket = getSocket();
 
       socket.emit("send-chat-message", {
@@ -933,6 +1094,98 @@ export const useWebRTC = () => {
       });
     },
     [roomId],
+  );
+
+  // Host Action Methods
+  const updateRoomPermissions = useCallback(
+    (newPerms) => {
+      const socket = getSocket();
+      if (socket.connected && roomId) {
+        socket.emit("host-update-permissions", { roomId, permissions: newPerms });
+      }
+    },
+    [roomId]
+  );
+
+  const muteAllParticipants = useCallback(() => {
+    const socket = getSocket();
+    if (socket.connected && roomId) {
+      socket.emit("host-mute-all", { roomId });
+      toast.success("Muted all participants 🔇");
+    }
+  }, [roomId]);
+
+  const stopAllVideo = useCallback(() => {
+    const socket = getSocket();
+    if (socket.connected && roomId) {
+      socket.emit("host-stop-all-video", { roomId });
+      toast.success("Turned off camera for all participants 📷");
+    }
+  }, [roomId]);
+
+  const controlParticipant = useCallback(
+    (targetSocketId, action) => {
+      const socket = getSocket();
+      if (socket.connected && roomId && targetSocketId && action) {
+        socket.emit("host-control-user", { roomId, targetSocketId, action });
+        if (action === "mute") toast.success("Muted participant 🔇");
+        if (action === "stop-video") toast.success("Turned off participant's camera 📷");
+        if (action === "stop-screen") toast.success("Stopped participant's screen share 🖥️");
+        if (action === "kick") toast.success("Removed participant from meeting 🚪");
+      }
+    },
+    [roomId]
+  );
+
+  // Poll Methods
+  const createPoll = useCallback(
+    (question, options) => {
+      const socket = getSocket();
+      if (socket.connected && roomId && question && options?.length >= 2) {
+        socket.emit("create-poll", { roomId, question, options });
+        toast.success("Poll launched to meeting! 📊");
+      }
+    },
+    [roomId]
+  );
+
+  const votePoll = useCallback(
+    (pollId, optionIndex) => {
+      const socket = getSocket();
+      if (socket.connected && roomId && pollId && optionIndex !== undefined) {
+        socket.emit("vote-poll", {
+          roomId,
+          pollId,
+          optionIndex,
+          voterId: userRef.current?.id || userRef.current?._id || socket.id,
+          voterName: userRef.current?.name || "Participant",
+        });
+        toast.success("Vote submitted! 🗳️");
+      }
+    },
+    [roomId]
+  );
+
+  const closePoll = useCallback(
+    (pollId) => {
+      const socket = getSocket();
+      if (socket.connected && roomId && pollId) {
+        socket.emit("close-poll", { roomId, pollId });
+        toast.success("Poll ended 🛑");
+      }
+    },
+    [roomId]
+  );
+
+  const deletePoll = useCallback(
+    (pollId) => {
+      const socket = getSocket();
+      if (socket.connected && roomId && pollId) {
+        socket.emit("delete-poll", { roomId, pollId });
+        toast.success("Poll removed 🗑️");
+      }
+    },
+    [roomId]
   );
 
   const resetUnreadChatCount = useCallback(() => {
@@ -1049,5 +1302,15 @@ export const useWebRTC = () => {
     toggleVideo,
     toggleScreenShare,
     toggleRaiseHand,
+    roomPermissions,
+    updateRoomPermissions,
+    muteAllParticipants,
+    stopAllVideo,
+    controlParticipant,
+    polls,
+    createPoll,
+    votePoll,
+    closePoll,
+    deletePoll,
   };
 };

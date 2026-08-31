@@ -29,7 +29,6 @@ import { useTheme } from "../../context/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EMOJIS = ["💖", "👍", "🎉", "👏", "😂", "😮", "🤔", "👎"];
-
 const MeetingControls = ({
   roomId,
   isAudioMuted,
@@ -42,6 +41,12 @@ const MeetingControls = ({
   participantCount,
   layoutMode,
   isHost,
+  roomPermissions = {
+    allowMic: true,
+    allowCamera: true,
+    allowScreenShare: true,
+    allowChat: true,
+  },
   toggleAudio,
   toggleVideo,
   toggleScreenShare,
@@ -83,10 +88,10 @@ const MeetingControls = ({
 
   const handleToggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => { });
       setIsFullscreen(true);
     } else {
-      document.exitFullscreen?.().catch(() => {});
+      document.exitFullscreen?.().catch(() => { });
       setIsFullscreen(false);
     }
     setShowMoreMenu(false);
@@ -121,11 +126,10 @@ const MeetingControls = ({
             whileTap={{ scale: 0.95 }}
             onClick={toggleAudio}
             aria-label={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-              isAudioMuted
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isAudioMuted
                 ? "bg-[#ea4335] hover:bg-[#d93025] text-white"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-            }`}
+              }`}
           >
             {isAudioMuted ? (
               <FaMicrophoneSlash className="w-5 h-5" />
@@ -144,11 +148,10 @@ const MeetingControls = ({
             whileTap={{ scale: 0.95 }}
             onClick={toggleVideo}
             aria-label={isVideoOff ? "Turn on camera" : "Turn off camera"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-              isVideoOff
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isVideoOff
                 ? "bg-[#ea4335] hover:bg-[#d93025] text-white"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-            }`}
+              }`}
           >
             {isVideoOff ? (
               <FaVideoSlash className="w-5 h-5" />
@@ -166,11 +169,10 @@ const MeetingControls = ({
             whileTap={{ scale: 0.95 }}
             onClick={toggleCaptions}
             aria-label="Toggle captions"
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-              isCaptionsOn
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isCaptionsOn
                 ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124] ring-2 ring-[#1a73e8] dark:ring-[#8ab4f8]"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-            }`}
+              }`}
           >
             <FaClosedCaptioning className="w-5 h-5" />
           </motion.button>
@@ -182,11 +184,10 @@ const MeetingControls = ({
             whileTap={{ scale: 0.95 }}
             onClick={toggleRaiseHand}
             aria-label={isHandRaised ? "Lower hand" : "Raise hand"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-              isHandRaised
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isHandRaised
                 ? "bg-[#fbbc04] hover:bg-[#f29900] text-gray-950"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-            }`}
+              }`}
           >
             <FaHandPaper className="w-4 h-4" />
           </motion.button>
@@ -199,11 +200,10 @@ const MeetingControls = ({
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowEmojiPicker((prev) => !prev)}
               aria-label="Send a reaction"
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-                showEmojiPicker
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${showEmojiPicker
                   ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
                   : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-              }`}
+                }`}
             >
               <FaSmile className="w-5 h-5" />
             </motion.button>
@@ -241,11 +241,10 @@ const MeetingControls = ({
             whileTap={{ scale: 0.95 }}
             onClick={toggleScreenShare}
             aria-label={isScreenSharing ? "Stop presenting" : "Present now"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-              isScreenSharing
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isScreenSharing
                 ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124] ring-2 ring-[#1a73e8] dark:ring-[#8ab4f8]"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-            }`}
+              }`}
           >
             <FaDesktop className="w-5 h-5" />
           </motion.button>
@@ -258,11 +257,10 @@ const MeetingControls = ({
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowMoreMenu((prev) => !prev)}
               aria-label="More options"
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-                showMoreMenu
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${showMoreMenu
                   ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
                   : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-              }`}
+                }`}
             >
               <FaEllipsisV className="w-4 h-4" />
             </motion.button>
@@ -309,11 +307,10 @@ const MeetingControls = ({
                         onChangeLayout("auto");
                         setShowMoreMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
-                        layoutMode === "auto"
+                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${layoutMode === "auto"
                           ? "bg-blue-100 dark:bg-[#8ab4f8]/20 text-blue-700 dark:text-[#8ab4f8] font-semibold"
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#3c4043]"
-                      }`}
+                        }`}
                     >
                       <span>Auto / Grid</span>
                       {layoutMode === "auto" && <span>✓</span>}
@@ -323,11 +320,10 @@ const MeetingControls = ({
                         onChangeLayout("spotlight");
                         setShowMoreMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
-                        layoutMode === "spotlight"
+                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${layoutMode === "spotlight"
                           ? "bg-blue-100 dark:bg-[#8ab4f8]/20 text-blue-700 dark:text-[#8ab4f8] font-semibold"
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#3c4043]"
-                      }`}
+                        }`}
                     >
                       <span>Spotlight</span>
                       {layoutMode === "spotlight" && <span>✓</span>}
@@ -337,11 +333,10 @@ const MeetingControls = ({
                         onChangeLayout("sidebar");
                         setShowMoreMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
-                        layoutMode === "sidebar"
+                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${layoutMode === "sidebar"
                           ? "bg-blue-100 dark:bg-[#8ab4f8]/20 text-blue-700 dark:text-[#8ab4f8] font-semibold"
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#3c4043]"
-                      }`}
+                        }`}
                     >
                       <span>Sidebar</span>
                       {layoutMode === "sidebar" && <span>✓</span>}
@@ -409,11 +404,10 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("details")}
             aria-label="Meeting details"
-            className={`p-3 rounded-full transition-colors cursor-pointer ${
-              activeSidebar === "details"
+            className={`p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "details"
                 ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
                 : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            }`}
+              }`}
           >
             <FaInfoCircle className="w-5 h-5" />
           </button>
@@ -423,11 +417,10 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("participants")}
             aria-label="People"
-            className={`relative p-3 rounded-full transition-colors cursor-pointer ${
-              activeSidebar === "participants"
+            className={`relative p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "participants"
                 ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
                 : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            }`}
+              }`}
           >
             <FaUsers className="w-5 h-5" />
             {participantCount > 0 && (
@@ -442,11 +435,10 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("chat")}
             aria-label="Chat with everyone"
-            className={`relative p-3 rounded-full transition-colors cursor-pointer ${
-              activeSidebar === "chat"
+            className={`relative p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "chat"
                 ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
                 : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            }`}
+              }`}
           >
             <FaComments className="w-5 h-5" />
             {unreadChatCount > 0 && activeSidebar !== "chat" && (
@@ -461,11 +453,10 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("activities")}
             aria-label="Activities"
-            className={`p-3 rounded-full transition-colors cursor-pointer ${
-              activeSidebar === "activities"
+            className={`p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "activities"
                 ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
                 : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            }`}
+              }`}
           >
             <FaShapes className="w-5 h-5" />
           </button>
@@ -476,11 +467,10 @@ const MeetingControls = ({
             <button
               onClick={() => onToggleSidebar("host")}
               aria-label="Host controls"
-              className={`p-3 rounded-full transition-colors cursor-pointer ${
-                activeSidebar === "host"
+              className={`p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "host"
                   ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
                   : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+                }`}
             >
               <FaLock className="w-4 h-4" />
             </button>

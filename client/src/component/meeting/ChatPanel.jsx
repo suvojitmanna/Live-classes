@@ -7,9 +7,12 @@ const ChatPanel = ({
   onSendMessage,
   onClose,
   currentUserId,
+  isHost = false,
+  roomPermissions = { allowChat: true },
 }) => {
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef(null);
+  const isChatDisabled = !isHost && roomPermissions.allowChat === false;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -21,7 +24,7 @@ const ChatPanel = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || isChatDisabled) return;
     onSendMessage(inputText.trim());
     setInputText("");
   };
@@ -128,13 +131,22 @@ const ChatPanel = ({
           <input
             type="text"
             value={inputText}
+            disabled={isChatDisabled}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Send a message to everyone"
-            className="w-full bg-gray-100 dark:bg-[#282a2d] border border-gray-300 dark:border-gray-700/80 rounded-full pl-4 pr-11 py-2.5 text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-[#1a73e8] dark:focus:border-[#8ab4f8] focus:ring-1 focus:ring-[#1a73e8] transition-all"
+            placeholder={
+              isChatDisabled
+                ? "Chat is disabled by the host 🔒"
+                : "Send a message to everyone"
+            }
+            className={`w-full border rounded-full pl-4 pr-11 py-2.5 text-xs placeholder-gray-500 focus:outline-none transition-all ${
+              isChatDisabled
+                ? "bg-gray-200 dark:bg-gray-800 text-gray-400 border-gray-300 dark:border-gray-700 cursor-not-allowed"
+                : "bg-gray-100 dark:bg-[#282a2d] border-gray-300 dark:border-gray-700/80 text-gray-900 dark:text-white focus:border-[#1a73e8] dark:focus:border-[#8ab4f8] focus:ring-1 focus:ring-[#1a73e8]"
+            }`}
           />
           <button
             type="submit"
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || isChatDisabled}
             className="absolute right-1.5 p-2 rounded-full bg-[#1a73e8] disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white disabled:text-gray-500 transition-all cursor-pointer"
             aria-label="Send message"
           >

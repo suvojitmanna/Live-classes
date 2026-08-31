@@ -5,6 +5,8 @@ const rooms = new Map();
 const socketLookup = new Map();
 const roomHosts = new Map();
 const pendingKnocks = new Map();
+const roomPermissions = new Map();
+const roomPolls = new Map();
 
 export const isRoomActive = (roomId) => {
   if (!roomId) return false;
@@ -36,6 +38,8 @@ export const notifyMeetingDeleted = (roomId) => {
   rooms.delete(normalized);
   pendingKnocks.delete(normalized);
   roomHosts.delete(normalized);
+  roomPermissions.delete(normalized);
+  roomPolls.delete(normalized);
 };
 
 export const registerMeetingSocket = (io, socket) => {
@@ -165,6 +169,17 @@ export const registerMeetingSocket = (io, socket) => {
         users: existingParticipants,
         isHost: actualIsHost,
       });
+
+      const currentPerms = roomPermissions.get(normalizedRoomId) || {
+        allowMic: true,
+        allowCamera: true,
+        allowScreenShare: true,
+        allowChat: true,
+      };
+      socket.emit("room-permissions-updated", currentPerms);
+
+      const currentPolls = roomPolls.get(normalizedRoomId) || [];
+      socket.emit("polls-sync", { polls: currentPolls });
 
       if (actualIsHost && pendingKnocks.has(normalizedRoomId)) {
         const knocks = Array.from(pendingKnocks.get(normalizedRoomId).values());
@@ -513,9 +528,6 @@ export const registerMeetingSocket = (io, socket) => {
       timestamp: Date.now(),
     };
 
-    console.log(
-      `💬 [Chat] ${messageData.sender.name} in room ${normalizedRoomId}: "${messageData.text}"`,
-    );
     io.to(normalizedRoomId).emit("chat-message", messageData);
   });
 
@@ -531,6 +543,210 @@ export const registerMeetingSocket = (io, socket) => {
       socketId: socket.id,
       timestamp: Date.now(),
     });
+  });
+
+  socket.on("host-update-permissions", ({ roomId, permissions }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId || !permissions) return;
+
+    const isHost = socketLookup.get(socket.id)?.isHost;
+    if (!isHost) return;
+
+    const prev = roomPermissions.get(normalizedRoomId) || {
+      allowMic: true,
+      allowCamera: true,
+      allowScreenShare: true,
+      allowChat: true,
+    };
+
+    const updated = { ...prev, ...permissions };
+    roomPermissions.set(normalizedRoomId, updated);
+
+    io.to(normalizedRoomId).emit("room-permissions-updated", updated);
+
+    if (permissions.allowMic === false) {
+      socket.to(normalizedRoomId).emit("force-mute");
+    }
+    if (permissions.allowCamera === false) {
+      socket.to(normalizedRoomId).emit("force-stop-video");
+    }
+    if (permissions.allowScreenShare === false) {
+      socket.to(normalizedRoomId).emit("force-stop-screen");
+    }
+  });
+
+  socket.on("host-mute-all", ({ roomId }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId) return;
+
+    const isHost = socketLookup.get(socket.id)?.isHost;
+    if (!isHost) return;
+
+    socket.to(normalizedRoomId).emit("force-mute");
+  });
+
+  socket.on("host-stop-all-video", ({ roomId }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId) return;
+
+    const isHost = socketLookup.get(socket.id)?.isHost;
+    if (!isHost) return;
+
+    socket.to(normalizedRoomId).emit("force-stop-video");
+  });
+
+  socket.on("host-control-user", async ({ roomId, targetSocketId, action }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId || !targetSocketId || !action) return;
+
+    const isHost = socketLookup.get(socket.id)?.isHost;
+    if (!isHost) return;
+
+    if (action === "mute") {
+      io.to(targetSocketId).emit("force-mute");
+    } else if (action === "stop-video") {
+      io.to(targetSocketId).emit("force-stop-video");
+    } else if (action === "stop-screen") {
+      io.to(targetSocketId).emit("force-stop-screen");
+    } else if (action === "kick") {
+      io.to(targetSocketId).emit("force-kick", {
+        message: "You were removed from the meeting by the host.",
+      });
+      const targetSocket = io.sockets.sockets.get(targetSocketId);
+      if (targetSocket) {
+        await handleUserLeave(io, targetSocket, normalizedRoomId);
+        targetSocket.leave(normalizedRoomId);
+      }
+    }
+  });
+
+  socket.on("create-poll", ({ roomId, question, options }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (
+      !normalizedRoomId ||
+      !question ||
+      !Array.isArray(options) ||
+      options.length < 2
+    )
+      return;
+
+    if (!roomPolls.has(normalizedRoomId)) {
+      roomPolls.set(normalizedRoomId, []);
+    }
+
+    const participant = rooms.has(normalizedRoomId)
+      ? rooms.get(normalizedRoomId).get(socket.id)
+      : null;
+    const pollId = `poll_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+    const newPoll = {
+      id: pollId,
+      question: question.trim(),
+      options: options.map((opt, idx) => ({
+        id: `opt_${idx}`,
+        text:
+          typeof opt === "string"
+            ? opt.trim()
+            : opt.text?.trim() || `Option ${idx + 1}`,
+        votes: 0,
+        voters: [],
+      })),
+      createdBy: {
+        id: participant?.userId || socket.id,
+        name: participant?.userName || "Host",
+      },
+      createdAt: Date.now(),
+      isActive: true,
+    };
+
+    roomPolls.get(normalizedRoomId).unshift(newPoll);
+
+    io.to(normalizedRoomId).emit("new-poll-created", newPoll);
+    io.to(normalizedRoomId).emit("polls-sync", {
+      polls: roomPolls.get(normalizedRoomId),
+    });
+  });
+
+  socket.on(
+    "vote-poll",
+    ({ roomId, pollId, optionIndex, voterId, voterName }) => {
+      const normalizedRoomId = roomId
+        ? roomId.toLowerCase().trim()
+        : socketLookup.get(socket.id)?.roomId;
+      if (!normalizedRoomId || !pollId || optionIndex === undefined) return;
+
+      const polls = roomPolls.get(normalizedRoomId);
+      if (!polls) return;
+
+      const poll = polls.find((p) => p.id === pollId);
+      if (!poll || !poll.isActive) return;
+
+      const uid = (
+        voterId ||
+        socketLookup.get(socket.id)?.userId ||
+        socket.id
+      ).toString();
+
+      const alreadyVoted = poll.options.some((opt) => opt.voters.includes(uid));
+      if (alreadyVoted) return;
+
+      if (poll.options[optionIndex]) {
+        poll.options[optionIndex].votes += 1;
+        poll.options[optionIndex].voters.push(uid);
+
+        io.to(normalizedRoomId).emit("polls-sync", { polls });
+      }
+    },
+  );
+
+  socket.on("close-poll", ({ roomId, pollId }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId || !pollId) return;
+
+    const isHost = socketLookup.get(socket.id)?.isHost;
+    if (!isHost) return;
+
+    const polls = roomPolls.get(normalizedRoomId);
+    if (!polls) return;
+
+    const poll = polls.find((p) => p.id === pollId);
+    if (poll) {
+      poll.isActive = false;
+      io.to(normalizedRoomId).emit("polls-sync", { polls });
+    }
+  });
+
+  socket.on("delete-poll", ({ roomId, pollId }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId || !pollId) return;
+
+    const isHost = socketLookup.get(socket.id)?.isHost;
+    if (!isHost) return;
+
+    if (roomPolls.has(normalizedRoomId)) {
+      const filtered = roomPolls
+        .get(normalizedRoomId)
+        .filter((p) => p.id !== pollId);
+      roomPolls.set(normalizedRoomId, filtered);
+      console.log(
+        `🗑️ [Poll Deleted] Poll ${pollId} deleted from room: ${normalizedRoomId}`,
+      );
+      io.to(normalizedRoomId).emit("polls-sync", { polls: filtered });
+    }
   });
 
   socket.on("leave-room", async ({ roomId }) => {

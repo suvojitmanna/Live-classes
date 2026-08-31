@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FaClosedCaptioning, FaMicrophoneSlash } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSocket } from "../../service/socket";
@@ -19,8 +19,9 @@ const MeetingCaptions = ({
   const clearTimerRef = useRef(null);
   const restartTimerRef = useRef(null);
   const isMountedRef = useRef(true);
+  const isRecognizingRef = useRef(false);
+  const manualStopRef = useRef(false);
 
-  // 1. Listen for real-time captions and chat messages from anyone in the room
   useEffect(() => {
     if (!isEnabled || !roomId) return;
 
@@ -35,7 +36,7 @@ const MeetingCaptions = ({
         if (isMountedRef.current) {
           setCurrentCaption(null);
         }
-      }, 6000);
+      }, 5500);
     };
 
     const handleChatMessage = (msg) => {
@@ -58,7 +59,6 @@ const MeetingCaptions = ({
     };
   }, [isEnabled, roomId]);
 
-  // 2. Real-time microphone audio volume meter using Web Audio API on localStream
   useEffect(() => {
     if (!isEnabled || isAudioMuted || !localStream) {
       setAudioLevel(0);
@@ -100,7 +100,7 @@ const MeetingCaptions = ({
         };
       }
     } catch (e) {
-      console.warn("Audio meter init notice:", e);
+      console.warn("Audio meter notice:", e);
     }
 
     return () => {
@@ -114,20 +114,8 @@ const MeetingCaptions = ({
     };
   }, [isEnabled, isAudioMuted, localStream]);
 
-  // 3. Web Speech Recognition
-  useEffect(() => {
-    isMountedRef.current = true;
-
-    if (!isEnabled) {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {}
-      }
-      setCurrentCaption(null);
-      setSpeechError(null);
-      return;
-    }
+  const startRecognition = useCallback(() => {
+    if (!isMountedRef.current || !isEnabled || isAudioMuted) return;
 
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -137,27 +125,26 @@ const MeetingCaptions = ({
       return;
     }
 
-    setIsSupported(true);
-    setSpeechError(null);
-
-    if (isAudioMuted) {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {}
+    if (recognitionRef.current) {
+      try {
+        manualStopRef.current = true;
+        recognitionRef.current.abort();
+      } catch (e) {
+        console.log(e);
       }
-      return;
+      recognitionRef.current = null;
     }
 
-    let recognition;
     try {
-      recognition = new SpeechRecognition();
+      manualStopRef.current = false;
+      const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
       recognition.lang = navigator.language || "en-US";
 
       recognition.onstart = () => {
+        isRecognizingRef.current = true;
         if (isMountedRef.current) {
           setSpeechError(null);
         }
@@ -166,18 +153,25 @@ const MeetingCaptions = ({
       recognition.onresult = (event) => {
         if (!event.results || event.results.length === 0) return;
 
-        let accumulated = "";
+        let interim = "";
+        let final = "";
+
         for (let i = 0; i < event.results.length; i++) {
-          const item = event.results[i];
-          if (item && item[0] && item[0].transcript) {
-            accumulated += item[0].transcript + " ";
+          const res = event.results[i];
+          if (res && res[0] && res[0].transcript) {
+            if (res.isFinal) {
+              final += res[0].transcript + " ";
+            } else {
+              interim += res[0].transcript + " ";
+            }
           }
         }
 
-        const trimmed = accumulated.trim();
-        if (trimmed) {
+        const fullText = (final + interim).trim();
+
+        if (fullText) {
           const captionPayload = {
-            text: trimmed,
+            text: fullText,
             userName: userName || "You",
             timestamp: Date.now(),
           };
@@ -188,7 +182,7 @@ const MeetingCaptions = ({
           if (socket.connected && roomId) {
             socket.emit("send-caption", {
               roomId,
-              text: trimmed,
+              text: fullText,
               userName: userName || "You",
             });
           }
@@ -198,56 +192,129 @@ const MeetingCaptions = ({
             if (isMountedRef.current) {
               setCurrentCaption(null);
             }
-          }, 5500);
+          }, 5000);
         }
       };
 
       recognition.onerror = (event) => {
-        if (event.error === "no-speech") return;
+        if (event.error === "no-speech" || event.error === "aborted") {
+          return;
+        }
 
         console.warn("Speech recognition notice:", event.error);
         if (isMountedRef.current) {
           if (event.error === "not-allowed") {
-            setSpeechError("Microphone permission required for speech recognition.");
+            setSpeechError("Microphone permission required for live captions.");
           } else if (event.error === "audio-capture") {
-            setSpeechError("Microphone in use by another application.");
+            setSpeechError("Microphone in use by another tab or app.");
           } else if (event.error === "network") {
-            setSpeechError("Speech service network timeout. Reconnecting...");
+            setSpeechError("Speech service network reconnecting...");
           }
         }
       };
 
       recognition.onend = () => {
-        if (isMountedRef.current) {
-          if (isEnabled && !isAudioMuted) {
-            if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
-            restartTimerRef.current = setTimeout(() => {
-              try {
-                if (isMountedRef.current && isEnabled && !isAudioMuted && recognitionRef.current) {
-                  recognitionRef.current.start();
-                }
-              } catch (e) {}
-            }, 400);
-          }
+        isRecognizingRef.current = false;
+
+        if (
+          isMountedRef.current &&
+          isEnabled &&
+          !isAudioMuted &&
+          !manualStopRef.current
+        ) {
+          if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+          restartTimerRef.current = setTimeout(() => {
+            if (isMountedRef.current && isEnabled && !isAudioMuted) {
+              startRecognition();
+            }
+          }, 250);
         }
       };
 
       recognition.start();
       recognitionRef.current = recognition;
     } catch (err) {
-      console.warn("Captions initialize notice:", err.message);
+      console.warn("Recognition start notice:", err.message);
+      // Auto retry after brief pause
+      if (isMountedRef.current && isEnabled && !isAudioMuted) {
+        if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+        restartTimerRef.current = setTimeout(() => {
+          if (isMountedRef.current && isEnabled && !isAudioMuted) {
+            startRecognition();
+          }
+        }, 500);
+      }
     }
+  }, [isEnabled, isAudioMuted, userName, roomId]);
 
-    return () => {
-      isMountedRef.current = false;
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    if (!isEnabled) {
+      manualStopRef.current = true;
       if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
       if (recognitionRef.current) {
         try {
-          recognitionRef.current.stop();
-        } catch (e) {}
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.log(e);
+        }
+        recognitionRef.current = null;
+      }
+      isRecognizingRef.current = false;
+      setCurrentCaption(null);
+      setSpeechError(null);
+      return;
+    }
+
+    if (isAudioMuted) {
+      manualStopRef.current = true;
+      if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.log(e);
+        }
+        recognitionRef.current = null;
+      }
+      isRecognizingRef.current = false;
+      return;
+    }
+
+    // Start recognition engine
+    startRecognition();
+
+    return () => {
+      manualStopRef.current = true;
+      if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.log(e);
+        }
+        recognitionRef.current = null;
+      }
+      isRecognizingRef.current = false;
+    };
+  }, [isEnabled, isAudioMuted, startRecognition]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      manualStopRef.current = true;
+      if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          console.log(e);
+        }
       }
     };
-  }, [isEnabled, isAudioMuted, userName, roomId]);
+  }, []);
 
   if (!isEnabled) return null;
 
@@ -287,9 +354,7 @@ const MeetingCaptions = ({
                 Live captions not supported on this browser (use Chrome or Edge)
               </span>
             ) : speechError ? (
-              <span className="text-amber-300 truncate">
-                {speechError}
-              </span>
+              <span className="text-amber-300 truncate">{speechError}</span>
             ) : isAudioMuted ? (
               <span className="flex items-center gap-1.5 text-amber-300">
                 <FaMicrophoneSlash className="w-3 h-3 text-red-400 shrink-0" />
@@ -298,14 +363,16 @@ const MeetingCaptions = ({
             ) : (
               <span className="flex items-center gap-2 text-gray-300">
                 {isSpeaking ? (
-                  <span className="flex items-center gap-1 text-green-400 font-semibold">
+                  <span className="flex items-center gap-1.5 text-green-400 font-semibold">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
                     <span>[Speaking: {userName}]</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
-                    <span>Live captions on • Speak into your mic to see subtitles</span>
+                    <span>
+                      Live captions on • Speak into your mic to see subtitles
+                    </span>
                   </span>
                 )}
               </span>
