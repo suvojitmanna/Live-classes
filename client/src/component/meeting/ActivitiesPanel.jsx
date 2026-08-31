@@ -225,7 +225,6 @@ const ActivitiesPanel = ({
                       key={poll.id}
                       className="p-4 rounded-2xl bg-gray-50 dark:bg-[#282a2d] border border-gray-200 dark:border-gray-700/70 space-y-3 shadow-sm"
                     >
-                      {/* Poll Header */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2">
@@ -246,7 +245,6 @@ const ActivitiesPanel = ({
                           </h4>
                         </div>
 
-                        {/* Host Poll Actions */}
                         {isHost && (
                           <div className="flex items-center gap-1 shrink-0">
                             {poll.isActive && (
@@ -270,7 +268,6 @@ const ActivitiesPanel = ({
                         )}
                       </div>
 
-                      {/* Poll Options (Results view or Voting view) */}
                       {showResults ? (
                         <div className="space-y-2">
                           {poll.options.map((opt, optIdx) => {
@@ -288,7 +285,6 @@ const ActivitiesPanel = ({
                                     : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/70 text-gray-800 dark:text-gray-200"
                                   }`}
                               >
-                                {/* Percentage fill bar */}
                                 <div
                                   className={`absolute inset-0 pointer-events-none transition-all duration-500 ${isMyChoice
                                       ? "bg-emerald-500/20 dark:bg-emerald-500/30"
@@ -324,7 +320,6 @@ const ActivitiesPanel = ({
                           </div>
                         </div>
                       ) : (
-                        // Voting Mode for Participant
                         <div className="space-y-2.5">
                           <div className="space-y-1.5">
                             {poll.options.map((opt, optIdx) => {
@@ -377,7 +372,6 @@ const ActivitiesPanel = ({
           </div>
         )}
 
-        {/* CREATE POLL TAB (Host only) */}
         {activeTab === "create_poll" && (
           <div className="space-y-4">
             <button
@@ -396,7 +390,6 @@ const ActivitiesPanel = ({
               </div>
 
               <form onSubmit={handleLaunchPoll} className="space-y-3.5">
-                {/* Question */}
                 <div className="space-y-1">
                   <label className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">
                     Question
@@ -410,7 +403,6 @@ const ActivitiesPanel = ({
                   />
                 </div>
 
-                {/* Options */}
                 <div className="space-y-2">
                   <label className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">
                     Options
@@ -470,7 +462,6 @@ const ActivitiesPanel = ({
           </div>
         )}
 
-        {/* WHITEBOARD TAB */}
         {activeTab === "whiteboard" && (
           <div className="space-y-4 text-center">
             <button

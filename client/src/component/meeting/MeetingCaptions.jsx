@@ -235,7 +235,6 @@ const MeetingCaptions = ({
       recognitionRef.current = recognition;
     } catch (err) {
       console.warn("Recognition start notice:", err.message);
-      // Auto retry after brief pause
       if (isMountedRef.current && isEnabled && !isAudioMuted) {
         if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
         restartTimerRef.current = setTimeout(() => {
@@ -282,7 +281,6 @@ const MeetingCaptions = ({
       return;
     }
 
-    // Start recognition engine
     startRecognition();
 
     return () => {

@@ -121,8 +121,8 @@ const Dashboard = () => {
         >
           <div
             className={`w-14 h-8 sm:w-16 sm:h-9 rounded-full flex items-center justify-center transition-all ${activeTab === "meetings"
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#004a77] dark:text-[#c2e7ff] shadow-xs"
-                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#004a77] dark:text-[#c2e7ff] shadow-xs"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
           >
             <svg
@@ -135,8 +135,8 @@ const Dashboard = () => {
           </div>
           <span
             className={`text-xs ${activeTab === "meetings"
-                ? "font-bold text-[#0b57d0] dark:text-[#8ab4f8]"
-                : "font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+              ? "font-bold text-[#0b57d0] dark:text-[#8ab4f8]"
+              : "font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
               }`}
           >
             Meetings
@@ -154,8 +154,8 @@ const Dashboard = () => {
         >
           <div
             className={`w-14 h-8 sm:w-16 sm:h-9 rounded-full flex items-center justify-center transition-all ${activeTab === "calls"
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#004a77] dark:text-[#c2e7ff] shadow-xs"
-                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#004a77] dark:text-[#c2e7ff] shadow-xs"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
           >
             <svg
@@ -167,8 +167,8 @@ const Dashboard = () => {
           </div>
           <span
             className={`text-xs ${activeTab === "calls"
-                ? "font-bold text-[#0b57d0] dark:text-[#8ab4f8]"
-                : "font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+              ? "font-bold text-[#0b57d0] dark:text-[#8ab4f8]"
+              : "font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
               }`}
           >
             Calls
@@ -177,7 +177,7 @@ const Dashboard = () => {
       </aside>
       <main className="flex-1 p-6 sm:p-8 lg:p-10 overflow-y-auto space-y-12">
         {activeTab === "meetings" ? (
-          
+
           /* 1. MEETINGS VIEW                                         */
           <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2">
@@ -218,7 +218,7 @@ const Dashboard = () => {
                     <button
                       type="submit"
                       disabled={!meetingCodeInput.trim()}
-                      className="px-5 py-3 rounded-full text-xs sm:text-sm font-semibold text-[#1a73e8] dark:text-[#8ab4f8] disabled:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors cursor-pointer shrink-0"
+                      className="px-5 py-3 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 shrink-0 bg-blue-50 dark:bg-blue-950/40 text-[#1a73e8] dark:text-[#8ab4f8] hover:bg-blue-100 dark:hover:bg-blue-900/60 active:scale-95 cursor-pointer disabled:bg-transparent dark:disabled:bg-transparent disabled:text-gray-400 dark:disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:active:scale-100"
                     >
                       Join
                     </button>
@@ -280,10 +280,10 @@ const Dashboard = () => {
                           )}
                           <span
                             className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${session.status === "active"
-                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
-                                : session.status === "expired"
-                                  ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-800"
-                                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
+                              : session.status === "expired"
+                                ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-800"
+                                : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                               }`}
                           >
                             {session.status === "active" && (
@@ -334,8 +334,8 @@ const Dashboard = () => {
                               navigate(`${ROUTES.MEETING}/${session.roomId}`)
                             }
                             className={`px-3.5 py-1.5 rounded-full font-semibold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer ${session.status === "active"
-                                ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30"
-                                : "bg-[#1a73e8] hover:bg-[#1557b0] text-white"
+                              ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30"
+                              : "bg-[#1a73e8] hover:bg-[#1557b0] text-white"
                               }`}
                           >
                             {session.status === "active" ? (
@@ -359,7 +359,7 @@ const Dashboard = () => {
             </div>
           </>
         ) : (
-          
+
           /* 2. CALLS VIEW*/
           <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2">

@@ -143,24 +143,24 @@ const VideoGrid = ({
   }
 
   const totalParticipants = (isSelfFloating ? 0 : 1) + peers.length;
-  let gridLayoutClass = "grid-cols-1";
+  let gridLayoutClass = "grid-cols-1 max-w-4xl";
 
   if (totalParticipants === 2) {
-    gridLayoutClass = "grid-cols-1 md:grid-cols-2";
+    gridLayoutClass = "grid-cols-1 md:grid-cols-2 max-w-6xl";
   } else if (totalParticipants >= 3 && totalParticipants <= 4) {
-    gridLayoutClass = "grid-cols-1 sm:grid-cols-2";
+    gridLayoutClass = "grid-cols-1 sm:grid-cols-2 max-w-6xl";
   } else if (totalParticipants >= 5 && totalParticipants <= 6) {
-    gridLayoutClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    gridLayoutClass = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl";
   } else if (totalParticipants >= 7 && totalParticipants <= 9) {
-    gridLayoutClass = "grid-cols-2 sm:grid-cols-3";
+    gridLayoutClass = "grid-cols-2 sm:grid-cols-3 max-w-7xl";
   } else if (totalParticipants > 9) {
-    gridLayoutClass = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
+    gridLayoutClass = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 max-w-7xl";
   }
 
   return (
-    <div className="w-full h-full p-2 sm:p-4 flex items-center justify-center overflow-hidden">
+    <div className="w-full h-full p-2 sm:p-4 md:p-6 flex items-center justify-center overflow-hidden">
       <div
-        className={`grid ${gridLayoutClass} gap-3 sm:gap-4 w-full h-full max-w-7xl max-h-full items-center justify-center auto-rows-fr`}
+        className={`grid ${gridLayoutClass} gap-3 sm:gap-4 w-full h-full max-h-full items-center justify-center auto-rows-fr transition-all duration-300`}
       >
         {!isSelfFloating && (
           <div className="w-full h-full min-h-0 aspect-video flex items-center justify-center">

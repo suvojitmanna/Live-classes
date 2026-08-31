@@ -21,18 +21,15 @@ const OutgoingCallModal = () => {
           exit={{ opacity: 0, scale: 0.85, y: 20 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
           className="relative w-full max-w-sm bg-white dark:bg-[#202124] border border-gray-200 dark:border-gray-700/80 rounded-3xl p-6 shadow-2xl text-center space-y-6 overflow-hidden"
-        >
-          {/* Animated Glowing Ring Backdrop */}
+        > 
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-40 h-40 bg-emerald-500/15 dark:bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
 
-          {/* Receiver Avatar with Pulse */}
           <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
             <span className="absolute inset-0 rounded-full bg-emerald-500/20 dark:bg-emerald-500/30 animate-ping" />
             <span className="absolute -inset-2 rounded-full border border-emerald-400/50 dark:border-emerald-400/40 animate-pulse" />
             <Avatar name={receiver.name || receiver.email} avatar={receiver.avatar} size="2xl" />
           </div>
 
-          {/* Receiver Details & Status */}
           <div className="space-y-1.5">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
               {receiver.name || "Recipient"}
@@ -48,7 +45,6 @@ const OutgoingCallModal = () => {
             </div>
           </div>
 
-          {/* Cancel Call Button */}
           <div className="pt-2 flex flex-col items-center gap-1.5">
             <button
               onClick={cancelOutgoingCall}

@@ -91,7 +91,6 @@ const RecentCallsList = () => {
                 key={call.id}
                 className="p-4 rounded-2xl bg-white dark:bg-[#282a2d] border border-gray-200 dark:border-gray-700/70 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-3"
               >
-                {/* Header: Peer Info + Direction */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3 truncate">
                     <Avatar
@@ -128,7 +127,6 @@ const RecentCallsList = () => {
                   </div>
                 </div>
 
-                {/* Footer: Date, Duration, Callback, Delete */}
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700/50 text-xs">
                   <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
                     <FaClock className="w-3 h-3 text-gray-400" />
@@ -151,7 +149,6 @@ const RecentCallsList = () => {
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    {/* Delete Call Log Button */}
                     <button
                       onClick={() => deleteCallHistory(call.id)}
                       className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
@@ -161,7 +158,6 @@ const RecentCallsList = () => {
                       <FaTrash className="w-3 h-3" />
                     </button>
 
-                    {/* Quick 1-Click Callback Buttons */}
                     {peer.email && (
                       <>
                         <button

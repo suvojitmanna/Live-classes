@@ -99,14 +99,14 @@ const MeetingControls = ({
   };
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 h-20 bg-white/95 dark:bg-[#202124]/95 text-gray-900 dark:text-white px-4 sm:px-6 flex items-center justify-between z-40 select-none border-t border-gray-200 dark:border-gray-800/80 backdrop-blur-md transition-colors">
+    <footer className="fixed bottom-0 left-0 right-0 h-20 bg-white/90 dark:bg-[#1a1c1e]/90 text-gray-900 dark:text-white px-3 sm:px-6 flex items-center justify-between z-40 select-none border-t border-gray-200/80 dark:border-white/5 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.1)] transition-colors">
       <div className="hidden md:flex items-center gap-3 w-1/4">
-        <span className="text-xs font-mono font-semibold text-gray-600 dark:text-gray-300 tracking-wider">
+        <span className="text-xs font-mono font-semibold text-gray-600 dark:text-gray-300 tracking-wider bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-white/5">
           {roomId}
         </span>
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer"
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-all cursor-pointer"
           title="Toggle Dark/Light theme"
         >
           {effectiveTheme === "dark" ? (
@@ -117,25 +117,26 @@ const MeetingControls = ({
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-1 md:flex-initial">
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 flex-1 md:flex-initial">
         <Tooltip
           text={isAudioMuted ? "Turn on microphone" : "Turn off microphone"}
           shortcut="Ctrl+D"
         >
           <motion.button
             whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
             onClick={toggleAudio}
             aria-label={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isAudioMuted
-                ? "bg-[#ea4335] hover:bg-[#d93025] text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-              }`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+              isAudioMuted
+                ? "bg-[#ea4335] hover:bg-[#d93025] text-white shadow-red-500/20"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white"
+            }`}
           >
             {isAudioMuted ? (
-              <FaMicrophoneSlash className="w-5 h-5" />
+              <FaMicrophoneSlash className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <FaMicrophone className="w-5 h-5" />
+              <FaMicrophone className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
           </motion.button>
         </Tooltip>
@@ -146,18 +147,19 @@ const MeetingControls = ({
         >
           <motion.button
             whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
             onClick={toggleVideo}
             aria-label={isVideoOff ? "Turn on camera" : "Turn off camera"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isVideoOff
-                ? "bg-[#ea4335] hover:bg-[#d93025] text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-              }`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+              isVideoOff
+                ? "bg-[#ea4335] hover:bg-[#d93025] text-white shadow-red-500/20"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white"
+            }`}
           >
             {isVideoOff ? (
-              <FaVideoSlash className="w-5 h-5" />
+              <FaVideoSlash className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <FaVideo className="w-5 h-5" />
+              <FaVideo className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
           </motion.button>
         </Tooltip>
@@ -167,28 +169,30 @@ const MeetingControls = ({
         >
           <motion.button
             whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
             onClick={toggleCaptions}
             aria-label="Toggle captions"
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isCaptionsOn
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124] ring-2 ring-[#1a73e8] dark:ring-[#8ab4f8]"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-              }`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+              isCaptionsOn
+                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e] ring-2 ring-[#1a73e8] dark:ring-[#8ab4f8]"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white"
+            }`}
           >
-            <FaClosedCaptioning className="w-5 h-5" />
+            <FaClosedCaptioning className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.button>
         </Tooltip>
 
         <Tooltip text={isHandRaised ? "Lower hand" : "Raise hand"}>
           <motion.button
             whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
             onClick={toggleRaiseHand}
             aria-label={isHandRaised ? "Lower hand" : "Raise hand"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isHandRaised
-                ? "bg-[#fbbc04] hover:bg-[#f29900] text-gray-950"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-              }`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+              isHandRaised
+                ? "bg-[#fbbc04] hover:bg-[#f29900] text-gray-950 shadow-amber-500/20"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white"
+            }`}
           >
             <FaHandPaper className="w-4 h-4" />
           </motion.button>
@@ -198,15 +202,16 @@ const MeetingControls = ({
           <Tooltip text="Send a reaction">
             <motion.button
               whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => setShowEmojiPicker((prev) => !prev)}
               aria-label="Send a reaction"
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${showEmojiPicker
-                  ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-                }`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+                showEmojiPicker
+                  ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e]"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white"
+              }`}
             >
-              <FaSmile className="w-5 h-5" />
+              <FaSmile className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </Tooltip>
 
@@ -216,7 +221,7 @@ const MeetingControls = ({
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white dark:bg-[#282a2d] border border-gray-200 dark:border-gray-700/80 rounded-full px-3 py-2 flex items-center gap-1.5 shadow-2xl z-50 backdrop-blur-md"
+                className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-[#202124]/95 border border-gray-200 dark:border-white/10 rounded-full px-3 py-2 flex items-center gap-1.5 shadow-2xl z-50 backdrop-blur-xl"
               >
                 {EMOJIS.map((emoji, idx) => (
                   <button
@@ -225,7 +230,7 @@ const MeetingControls = ({
                       onSendReaction(emoji);
                       setShowEmojiPicker(false);
                     }}
-                    className="w-9 h-9 flex items-center justify-center text-xl hover:scale-125 hover:bg-gray-100 dark:hover:bg-[#3c4043] rounded-full transition-transform cursor-pointer"
+                    className="w-9 h-9 flex items-center justify-center text-xl hover:scale-125 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-all cursor-pointer"
                     aria-label={`Reaction ${emoji}`}
                   >
                     {emoji}
@@ -239,15 +244,16 @@ const MeetingControls = ({
         <Tooltip text={isScreenSharing ? "Stop presenting" : "Present now"}>
           <motion.button
             whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
             onClick={toggleScreenShare}
             aria-label={isScreenSharing ? "Stop presenting" : "Present now"}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isScreenSharing
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124] ring-2 ring-[#1a73e8] dark:ring-[#8ab4f8]"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-              }`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+              isScreenSharing
+                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e] ring-2 ring-[#1a73e8] dark:ring-[#8ab4f8]"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white"
+            }`}
           >
-            <FaDesktop className="w-5 h-5" />
+            <FaDesktop className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.button>
         </Tooltip>
 
@@ -255,15 +261,16 @@ const MeetingControls = ({
           <Tooltip text="More options">
             <motion.button
               whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => setShowMoreMenu((prev) => !prev)}
               aria-label="More options"
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${showMoreMenu
-                  ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-[#3c4043] dark:hover:bg-[#474a4d] dark:text-white"
-                }`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+                showMoreMenu
+                  ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e]"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white"
+              }`}
             >
-              <FaEllipsisV className="w-4 h-4" />
+              <FaEllipsisV className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </Tooltip>
 
@@ -273,7 +280,7 @@ const MeetingControls = ({
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white dark:bg-[#282a2d] border border-gray-200 dark:border-gray-700/80 rounded-2xl p-2 w-56 shadow-2xl z-50 text-xs text-gray-800 dark:text-gray-200"
+                className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-[#202124]/95 border border-gray-200 dark:border-white/10 rounded-2xl p-2 w-56 shadow-2xl z-50 text-xs text-gray-800 dark:text-gray-200 backdrop-blur-xl"
               >
                 {onOpenVisualEffects && (
                   <button
@@ -281,7 +288,7 @@ const MeetingControls = ({
                       onOpenVisualEffects();
                       setShowMoreMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#3c4043] text-left transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 text-left transition-colors cursor-pointer"
                   >
                     <FaMagic className="w-4 h-4 text-purple-500 dark:text-purple-400" />
                     <span>Apply visual effects</span>
@@ -290,7 +297,7 @@ const MeetingControls = ({
 
                 <button
                   onClick={() => setShowLayoutMenu((prev) => !prev)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#3c4043] text-left transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 text-left transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <FaThLarge className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -302,16 +309,17 @@ const MeetingControls = ({
                 </button>
 
                 {showLayoutMenu && (
-                  <div className="bg-gray-50 dark:bg-[#202124] rounded-xl p-1.5 my-1 space-y-1 border border-gray-200 dark:border-gray-700">
+                  <div className="bg-gray-50 dark:bg-black/30 rounded-xl p-1.5 my-1 space-y-1 border border-gray-200 dark:border-white/5">
                     <button
                       onClick={() => {
                         onChangeLayout("auto");
                         setShowMoreMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${layoutMode === "auto"
+                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
+                        layoutMode === "auto"
                           ? "bg-blue-100 dark:bg-[#8ab4f8]/20 text-blue-700 dark:text-[#8ab4f8] font-semibold"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#3c4043]"
-                        }`}
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/5"
+                      }`}
                     >
                       <span>Auto / Grid</span>
                       {layoutMode === "auto" && <span>✓</span>}
@@ -321,10 +329,11 @@ const MeetingControls = ({
                         onChangeLayout("spotlight");
                         setShowMoreMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${layoutMode === "spotlight"
+                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
+                        layoutMode === "spotlight"
                           ? "bg-blue-100 dark:bg-[#8ab4f8]/20 text-blue-700 dark:text-[#8ab4f8] font-semibold"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#3c4043]"
-                        }`}
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/5"
+                      }`}
                     >
                       <span>Spotlight</span>
                       {layoutMode === "spotlight" && <span>✓</span>}
@@ -334,10 +343,11 @@ const MeetingControls = ({
                         onChangeLayout("sidebar");
                         setShowMoreMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${layoutMode === "sidebar"
+                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
+                        layoutMode === "sidebar"
                           ? "bg-blue-100 dark:bg-[#8ab4f8]/20 text-blue-700 dark:text-[#8ab4f8] font-semibold"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#3c4043]"
-                        }`}
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/5"
+                      }`}
                     >
                       <span>Sidebar</span>
                       {layoutMode === "sidebar" && <span>✓</span>}
@@ -347,7 +357,7 @@ const MeetingControls = ({
 
                 <button
                   onClick={handleToggleFullscreen}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#3c4043] text-left transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 text-left transition-colors cursor-pointer"
                 >
                   {isFullscreen ? (
                     <FaCompress className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -364,7 +374,7 @@ const MeetingControls = ({
                     onOpenSettings();
                     setShowMoreMenu(false);
                   }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#3c4043] text-left transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 text-left transition-colors cursor-pointer"
                 >
                   <FaCog className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   <span>Settings</span>
@@ -376,7 +386,7 @@ const MeetingControls = ({
                       onOpenShortcuts();
                       setShowMoreMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#3c4043] text-left transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 text-left transition-colors cursor-pointer"
                   >
                     <FaKeyboard className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     <span>Keyboard shortcuts</span>
@@ -390,12 +400,12 @@ const MeetingControls = ({
         <Tooltip text="Leave call">
           <motion.button
             whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
             onClick={onLeaveMeeting}
             aria-label="Leave call"
-            className="w-14 sm:w-16 h-11 sm:h-12 rounded-full bg-[#ea4335] hover:bg-[#d93025] text-white flex items-center justify-center shadow-lg transition-all cursor-pointer"
+            className="w-13 sm:w-16 h-10 sm:h-12 rounded-full bg-[#ea4335] hover:bg-[#d93025] text-white flex items-center justify-center shadow-lg shadow-red-500/25 transition-all cursor-pointer"
           >
-            <FaPhoneSlash className="w-5 h-5" />
+            <FaPhoneSlash className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.button>
         </Tooltip>
       </div>
@@ -405,12 +415,13 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("details")}
             aria-label="Meeting details"
-            className={`p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "details"
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
-                : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+            className={`p-2.5 sm:p-3 rounded-full transition-all cursor-pointer ${
+              activeSidebar === "details"
+                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e]"
+                : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
           >
-            <FaInfoCircle className="w-5 h-5" />
+            <FaInfoCircle className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </Tooltip>
 
@@ -418,18 +429,19 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("participants")}
             aria-label="People"
-            className={`relative p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "participants"
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
-                : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+            className={`relative p-2.5 sm:p-3 rounded-full transition-all cursor-pointer ${
+              activeSidebar === "participants"
+                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e]"
+                : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
           >
-            <FaUsers className="w-5 h-5" />
+            <FaUsers className="w-4 h-4 sm:w-5 sm:h-5" />
             {pendingKnocksCount > 0 ? (
               <span className="absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500 text-white animate-bounce shadow-md">
                 {pendingKnocksCount}
               </span>
             ) : participantCount > 0 ? (
-              <span className="absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-gray-200 dark:bg-[#3c4043] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">
+              <span className="absolute top-1 right-1 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-gray-200 dark:bg-white/20 text-gray-800 dark:text-white border border-gray-300 dark:border-white/10">
                 {participantCount}
               </span>
             ) : null}
@@ -440,14 +452,15 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("chat")}
             aria-label="Chat with everyone"
-            className={`relative p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "chat"
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
-                : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+            className={`relative p-2.5 sm:p-3 rounded-full transition-all cursor-pointer ${
+              activeSidebar === "chat"
+                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e]"
+                : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
           >
-            <FaComments className="w-5 h-5" />
+            <FaComments className="w-4 h-4 sm:w-5 sm:h-5" />
             {unreadChatCount > 0 && activeSidebar !== "chat" && (
-              <span className="absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#1a73e8] text-white animate-pulse">
+              <span className="absolute top-1 right-1 text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#1a73e8] text-white animate-pulse shadow-md">
                 {unreadChatCount}
               </span>
             )}
@@ -458,12 +471,13 @@ const MeetingControls = ({
           <button
             onClick={() => onToggleSidebar("activities")}
             aria-label="Activities"
-            className={`p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "activities"
-                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
-                : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+            className={`p-2.5 sm:p-3 rounded-full transition-all cursor-pointer ${
+              activeSidebar === "activities"
+                ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e]"
+                : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            }`}
           >
-            <FaShapes className="w-5 h-5" />
+            <FaShapes className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </Tooltip>
 
@@ -472,10 +486,11 @@ const MeetingControls = ({
             <button
               onClick={() => onToggleSidebar("host")}
               aria-label="Host controls"
-              className={`p-3 rounded-full transition-colors cursor-pointer ${activeSidebar === "host"
-                  ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#202124]"
-                  : "hover:bg-gray-100 dark:hover:bg-[#3c4043] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                }`}
+              className={`p-2.5 sm:p-3 rounded-full transition-all cursor-pointer ${
+                activeSidebar === "host"
+                  ? "bg-[#c2e7ff] text-[#001d35] dark:bg-[#8ab4f8] dark:text-[#1a1c1e]"
+                  : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}
             >
               <FaLock className="w-4 h-4" />
             </button>
