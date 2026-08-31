@@ -17,6 +17,7 @@ export const useWebRTC = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [knockStatus, setKnockStatus] = useState("idle");
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [pendingKnocks, setPendingKnocks] = useState([]);
   const [messages, setMessages] = useState([]);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -540,6 +541,17 @@ export const useWebRTC = () => {
   // 7. Socket.IO Event Subscriptions
   useEffect(() => {
     const socket = getSocket();
+
+    setIsSocketConnected(socket.connected);
+
+    const handleConnect = () => setIsSocketConnected(true);
+    const handleDisconnect = () => setIsSocketConnected(false);
+    const handleConnectError = () => setIsSocketConnected(false);
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("connect_error", handleConnectError);
+
     socket.on("meeting-deleted", ({ message }) => {
       toast.error(message || "This meeting link was deleted by the host.", {
         duration: 6000,
@@ -892,6 +904,9 @@ export const useWebRTC = () => {
     });
 
     return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("connect_error", handleConnectError);
       socket.off("polls-sync");
       socket.off("new-poll-created");
       socket.off("room-permissions-updated");
@@ -1307,6 +1322,7 @@ export const useWebRTC = () => {
     muteAllParticipants,
     stopAllVideo,
     controlParticipant,
+    isSocketConnected,
     polls,
     createPoll,
     votePoll,

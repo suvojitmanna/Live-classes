@@ -8,21 +8,31 @@ const pendingKnocks = new Map();
 const roomPermissions = new Map();
 const roomPolls = new Map();
 
+const normalizeRoomId = (raw) => {
+  if (!raw) return "";
+  try {
+    let str = decodeURIComponent(raw).toLowerCase().trim();
+    return str.replace(/[\s_]+/g, "-").replace(/-+/g, "-");
+  } catch (e) {
+    return raw.toLowerCase().trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-");
+  }
+};
+
 export const isRoomActive = (roomId) => {
   if (!roomId) return false;
-  const normalized = roomId.toLowerCase().trim();
+  const normalized = normalizeRoomId(roomId);
   return rooms.has(normalized) && rooms.get(normalized).size > 0;
 };
 
 export const getRoomParticipantCount = (roomId) => {
   if (!roomId) return 0;
-  const normalized = roomId.toLowerCase().trim();
+  const normalized = normalizeRoomId(roomId);
   return rooms.has(normalized) ? rooms.get(normalized).size : 0;
 };
 
 export const notifyMeetingDeleted = (roomId) => {
   if (!roomId) return;
-  const normalized = roomId.toLowerCase().trim();
+  const normalized = normalizeRoomId(roomId);
   const io = getIO();
 
   if (io) {
@@ -56,7 +66,7 @@ export const registerMeetingSocket = (io, socket) => {
     }) => {
       if (!roomId) return;
 
-      const normalizedRoomId = roomId.toLowerCase().trim();
+      const normalizedRoomId = normalizeRoomId(roomId);
       let actualIsHost = false;
 
       try {
@@ -208,7 +218,7 @@ export const registerMeetingSocket = (io, socket) => {
   socket.on("knock-to-join", async ({ roomId, user }) => {
     if (!roomId || !user) return;
 
-    const normalizedRoomId = roomId.toLowerCase().trim();
+    const normalizedRoomId = normalizeRoomId(roomId);
 
     try {
       const session = await Session.findOne({
@@ -269,7 +279,7 @@ export const registerMeetingSocket = (io, socket) => {
 
   socket.on("host-decision", ({ roomId, targetSocketId, decision }) => {
     const normalizedRoomId = roomId
-      ? roomId.toLowerCase().trim()
+      ? normalizeRoomId(roomId)
       : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId || !targetSocketId) return;
 
@@ -297,7 +307,7 @@ export const registerMeetingSocket = (io, socket) => {
 
   socket.on("cancel-knock", ({ roomId }) => {
     const normalizedRoomId = roomId
-      ? roomId.toLowerCase().trim()
+      ? normalizeRoomId(roomId)
       : socketLookup.get(socket.id)?.roomId;
     if (normalizedRoomId && pendingKnocks.has(normalizedRoomId)) {
       pendingKnocks.get(normalizedRoomId).delete(socket.id);

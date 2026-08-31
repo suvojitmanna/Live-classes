@@ -25,11 +25,21 @@ import Avatar from "../component/common/Avatar";
 import api from "../service/api";
 import toast from "react-hot-toast";
 
+const normalizeRoomId = (raw) => {
+  if (!raw) return "";
+  try {
+    let str = decodeURIComponent(raw).toLowerCase().trim();
+    return str.replace(/[\s_]+/g, "-").replace(/-+/g, "-");
+  } catch (e) {
+    return raw.toLowerCase().trim().replace(/[\s_]+/g, "-").replace(/-+/g, "-");
+  }
+};
+
 const MeetingRoom = () => {
   const { roomId: paramRoomId } = useParams();
   const [searchParams] = useSearchParams();
   const queryRoomId = searchParams.get("roomId");
-  const roomId = (paramRoomId || queryRoomId || "").toLowerCase().trim();
+  const roomId = normalizeRoomId(paramRoomId || queryRoomId);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -90,6 +100,7 @@ const MeetingRoom = () => {
     muteAllParticipants,
     stopAllVideo,
     controlParticipant,
+    isSocketConnected,
     polls,
     createPoll,
     votePoll,
@@ -325,7 +336,7 @@ const MeetingRoom = () => {
       <MeetingHeader
         roomId={roomId}
         title={sessionDetails?.title || "Live Class Meeting"}
-        isConnected={true}
+        isConnected={isSocketConnected}
         onOpenDetails={() => handleToggleSidebar("details")}
       />
 
