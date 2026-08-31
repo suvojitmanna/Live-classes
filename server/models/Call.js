@@ -39,6 +39,15 @@ const callSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    // Separate call history deletion for both users
+    deletedByCaller: {
+      type: Boolean,
+      default: false,
+    },
+    deletedByReceiver: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -46,8 +55,8 @@ const callSchema = new mongoose.Schema(
 );
 
 // Optimize query index for fetching user call logs quickly
-callSchema.index({ caller: 1, createdAt: -1 });
-callSchema.index({ receiver: 1, createdAt: -1 });
+callSchema.index({ caller: 1, deletedByCaller: 1, createdAt: -1 });
+callSchema.index({ receiver: 1, deletedByReceiver: 1, createdAt: -1 });
 
 const Call = mongoose.model("Call", callSchema);
 

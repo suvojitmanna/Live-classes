@@ -33,16 +33,16 @@ const AuthForm = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-100 transition-colors"
+      className="min-h-screen flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-[#1f1f1f] text-gray-900 dark:text-gray-100 transition-colors"
     >
       <div className="max-w-md w-full">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-center mb-8"
+          className="text-center mb-4"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl shadow-lg mb-4 bg-gradient-to-br from-blue-600 to-indigo-600">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl shadow-lg mb-2 bg-gradient-to-br from-blue-600 to-indigo-600">
             {isLogin ? (
               <FaVideo className="w-7 h-7 text-white" />
             ) : (
@@ -50,7 +50,7 @@ const AuthForm = ({
             )}
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-1">
             {isLogin ? APP_CONFIG.APP_NAME : `Join ${APP_CONFIG.APP_NAME}`}
           </h1>
 
@@ -65,9 +65,9 @@ const AuthForm = ({
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-white dark:bg-[#282a2d] rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700/80"
+          className="bg-white dark:bg-[#282a2d] rounded-3xl shadow-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700/80"
         >
-          <div className="mb-6">
+          <div className="mb-4">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white text-center">
               {isLogin
                 ? APP_CONFIG.AUTH_CONTENT.LOGIN.HEADING
@@ -81,7 +81,7 @@ const AuthForm = ({
             </p>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
               <div className="flex justify-center w-full">
                 <GoogleLogin
@@ -116,7 +116,7 @@ const AuthForm = ({
               </button>
             )}
 
-            <div className="relative my-6">
+            <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-gray-700" />
               </div>
@@ -230,7 +230,7 @@ const AuthForm = ({
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-3 px-4 rounded-full shadow-lg text-xs sm:text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6"
+              className="w-full flex justify-center items-center py-3 px-4 rounded-full shadow-lg text-xs sm:text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -247,7 +247,7 @@ const AuthForm = ({
             </motion.button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               {isLogin ? (
                 <>
@@ -279,3 +279,4 @@ const AuthForm = ({
 };
 
 export default AuthForm;
+

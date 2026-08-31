@@ -46,6 +46,7 @@ const MeetingRoom = () => {
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);
+  const [isEndedLinkDisabled, setIsEndedLinkDisabled] = useState(false);
 
   const {
     localStream,
@@ -60,6 +61,7 @@ const MeetingRoom = () => {
     error: rtcError,
     loading: rtcLoading,
     knockStatus,
+    setKnockStatus,
     pendingKnocks,
     askToJoin,
     cancelKnock,
@@ -107,15 +109,25 @@ const MeetingRoom = () => {
       try {
         const response = await api.get(`/session/${roomId}`);
         if (response.data.success) {
-          setSessionDetails(response.data.data.session);
+          const sess = response.data.data.session;
+          setSessionDetails(sess);
+
+          if (sess.isLinkDisabled || sess.status === "expired") {
+            setKnockStatus("expired");
+          }
         }
       } catch (err) {
+        if (err.response?.status === 404) {
+          setKnockStatus("not_found");
+        } else if (err.response?.status === 403 || err.response?.data?.isExpired) {
+          setKnockStatus("expired");
+        }
         console.warn("Session fetch info notice:", err.message);
       }
     };
 
     fetchSession();
-  }, [roomId, navigate, user, startPreview]);
+  }, [roomId, navigate, user, startPreview, setKnockStatus]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -141,7 +153,19 @@ const MeetingRoom = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleAudio, toggleVideo, toggleRaiseHand]);
 
+  useEffect(() => {
+    if (activeSidebar === "chat") {
+      resetUnreadChatCount();
+    }
+  }, [activeSidebar, messages, resetUnreadChatCount]);
+
   const handleJoinOrAsk = async () => {
+    if (sessionDetails?.isLinkDisabled || sessionDetails?.status === "expired" || knockStatus === "expired") {
+      toast.error("This meeting link has been permanently disabled.");
+      setKnockStatus("expired");
+      return;
+    }
+
     if (!displayName.trim()) {
       toast.error("Please enter your display name");
       return;
@@ -155,9 +179,18 @@ const MeetingRoom = () => {
 
     if (isHost) {
       try {
-        await api.post("/session/join", { roomId });
+        const joinRes = await api.post("/session/join", { roomId });
+        if (joinRes.data.success === false && joinRes.data.isExpired) {
+          toast.error("This meeting link has been disabled.");
+          setKnockStatus("expired");
+          return;
+        }
       } catch (err) {
-        console.log(err);
+        if (err.response?.status === 403) {
+          toast.error("This meeting link has been disabled.");
+          setKnockStatus("expired");
+          return;
+        }
       }
       await joinMeetingRoom(roomId, currentUser, true);
       toast.success("Joined meeting as Host 👑", { icon: "🟢" });
@@ -181,6 +214,8 @@ const MeetingRoom = () => {
 
   const handleEndMeetingForEveryone = async () => {
     setIsLeaveModalOpen(false);
+    leaveMeetingRoom();
+
     try {
       await api.delete(`/session/${roomId}`);
     } catch (err) {
@@ -191,9 +226,9 @@ const MeetingRoom = () => {
       }
       console.log(err);
     }
-    leaveMeetingRoom();
-    setHasEnded(true);
-    toast.success("Meeting ended and link deleted for everyone");
+
+    toast.success("Meeting ended and link permanently disabled");
+    navigate(ROUTES.DASHBOARD);
   };
 
   // Toggle Sidebar
@@ -217,12 +252,23 @@ const MeetingRoom = () => {
   };
 
   if (hasEnded) {
+    const isLinkDisabled =
+      isEndedLinkDisabled ||
+      sessionDetails?.isLinkDisabled ||
+      sessionDetails?.status === "expired" ||
+      knockStatus === "expired";
+
     return (
       <MeetingEndedView
-        onRejoin={() => {
-          setHasEnded(false);
-          startPreview();
-        }}
+        isLinkDisabled={isLinkDisabled}
+        onRejoin={
+          isLinkDisabled
+            ? undefined
+            : () => {
+              setHasEnded(false);
+              startPreview();
+            }
+        }
         onReturnHome={() => navigate(ROUTES.DASHBOARD)}
       />
     );
@@ -272,12 +318,12 @@ const MeetingRoom = () => {
         onOpenDetails={() => handleToggleSidebar("details")}
       />
 
-      {isHost && pendingKnocks.length > 0 && (
+      {pendingKnocks.length > 0 && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 max-w-lg w-full px-4 space-y-2">
           {pendingKnocks.map((knock) => (
             <div
               key={knock.socketId}
-              className="bg-white dark:bg-[#282a2d] border border-blue-400 dark:border-[#8ab4f8]/60 text-gray-900 dark:text-white rounded-2xl shadow-2xl p-3.5 flex items-center justify-between gap-4 backdrop-blur-md animate-fade-in"
+              className="bg-white dark:bg-[#282a2d] border-2 border-blue-500 dark:border-[#8ab4f8] text-gray-900 dark:text-white rounded-2xl shadow-2xl p-4 flex items-center justify-between gap-4 backdrop-blur-md animate-bounce"
             >
               <div className="flex items-center gap-3 truncate">
                 <Avatar name={knock.userName} avatar={knock.avatar} size="sm" />
@@ -285,8 +331,8 @@ const MeetingRoom = () => {
                   <div className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
                     {knock.userName}
                   </div>
-                  <div className="text-[11px] text-gray-500 dark:text-gray-400">
-                    Wants to join this call
+                  <div className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">
+                    Asking to join this meeting...
                   </div>
                 </div>
               </div>
@@ -294,13 +340,13 @@ const MeetingRoom = () => {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => admitUser(knock.socketId)}
-                  className="px-3.5 py-1.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold shadow-md transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-bold shadow-md transition-all cursor-pointer"
                 >
                   Admit
                 </button>
                 <button
                   onClick={() => denyUser(knock.socketId)}
-                  className="px-3.5 py-1.5 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-all cursor-pointer"
+                  className="px-3.5 py-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-all cursor-pointer"
                 >
                   Deny
                 </button>
@@ -311,7 +357,13 @@ const MeetingRoom = () => {
       )}
 
       <FloatingReactions reactions={reactions} />
-      <MeetingCaptions isEnabled={isCaptionsOn} userName={displayName} />
+      <MeetingCaptions
+        isEnabled={isCaptionsOn}
+        userName={displayName}
+        roomId={roomId}
+        isAudioMuted={isAudioMuted}
+        localStream={localStream}
+      />
 
       {isScreenSharing && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-30 bg-[#1a73e8] text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2">
@@ -379,6 +431,10 @@ const MeetingRoom = () => {
             localIsVideoOff={isVideoOff}
             localIsHandRaised={isHandRaised}
             peers={peers}
+            pendingKnocks={pendingKnocks}
+            onAdmit={admitUser}
+            onDeny={denyUser}
+            isHost={isHost}
             hostName={sessionDetails?.hostName}
             onClose={() => setActiveSidebar(null)}
             roomId={roomId}

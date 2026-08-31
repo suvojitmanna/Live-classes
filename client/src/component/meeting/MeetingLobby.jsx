@@ -268,6 +268,28 @@ const MeetingLobby = ({
                 Return to Dashboard
               </button>
             </div>
+          ) : knockStatus === "not_found" ? (
+            <div className="p-6 rounded-3xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 shadow-xl space-y-5 text-center">
+              <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+                <FaExclamationCircle className="w-7 h-7" />
+              </div>
+
+              <div className="space-y-1.5">
+                <h3 className="text-lg font-bold text-red-900 dark:text-red-300">
+                  Meeting Not Found
+                </h3>
+                <p className="text-xs text-red-700 dark:text-red-400">
+                  This meeting session does not exist or has been deleted. Please check the code and try again.
+                </p>
+              </div>
+
+              <button
+                onClick={onBackToDashboard}
+                className="w-full py-2.5 px-4 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Return to Dashboard
+              </button>
+            </div>
           ) : knockStatus === "expired" ? (
             <div className="p-6 rounded-3xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 shadow-xl space-y-5 text-center">
               <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
@@ -276,10 +298,10 @@ const MeetingLobby = ({
 
               <div className="space-y-1.5">
                 <h3 className="text-lg font-bold text-amber-900 dark:text-amber-300">
-                  Meeting Link Expired
+                  Meeting Link Disabled
                 </h3>
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  This meeting link has expired and is disabled by the host.
+                  This meeting link has been permanently disabled. The host and participants cannot rejoin this link.
                 </p>
               </div>
 

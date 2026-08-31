@@ -1,6 +1,10 @@
 import Session from "../models/Session.js";
 import User from "../models/user.js";
-import { isRoomActive, getRoomParticipantCount, notifyMeetingDeleted } from "../socket/meetingSocket.js";
+import {
+  isRoomActive,
+  getRoomParticipantCount,
+  notifyMeetingDeleted,
+} from "../socket/meetingSocket.js";
 
 export const listSession = async (req, res, next) => {
   try {
@@ -43,7 +47,7 @@ export const listSession = async (req, res, next) => {
           endedAt: s.endedAt,
           isHost: s.host.toString() === userId.toString(),
         };
-      })
+      }),
     );
 
     const filteredResult =
@@ -178,7 +182,7 @@ export const JoinSession = async (req, res, next) => {
     session.status = "active";
 
     const participantIndex = session.participants.findIndex(
-      (p) => p.userId.toString() === userId.toString()
+      (p) => p.userId.toString() === userId.toString(),
     );
 
     if (participantIndex >= 0) {
@@ -207,7 +211,8 @@ export const JoinSession = async (req, res, next) => {
           host: session.host.toString(),
           hostName: session.hostName,
           status: session.status,
-          participantCount: session.participants.filter((p) => !p.leftAt).length,
+          participantCount: session.participants.filter((p) => !p.leftAt)
+            .length,
           isHost,
           requireAdmission: session.requireAdmission,
           participants: session.participants,
@@ -252,9 +257,13 @@ export const getSession = async (req, res, next) => {
       });
     }
 
-    const isHost = userId ? session.host.toString() === userId.toString() : false;
+    const isHost = userId
+      ? session.host.toString() === userId.toString()
+      : false;
     const isParticipant = userId
-      ? session.participants.some((p) => p.userId.toString() === userId.toString())
+      ? session.participants.some(
+          (p) => p.userId.toString() === userId.toString(),
+        )
       : false;
 
     res.json({
@@ -270,7 +279,8 @@ export const getSession = async (req, res, next) => {
           isLinkDisabled: session.isLinkDisabled,
           expiresAt: session.expiresAt,
           requireAdmission: session.requireAdmission,
-          participantCount: session.participants.filter((p) => !p.leftAt).length,
+          participantCount: session.participants.filter((p) => !p.leftAt)
+            .length,
           isHost,
           isParticipant,
           participants: session.participants,
@@ -417,7 +427,7 @@ export const leaveSession = async (req, res, next) => {
     }
 
     const participant = session.participants.find(
-      (p) => p.userId.toString() === userId.toString()
+      (p) => p.userId.toString() === userId.toString(),
     );
 
     if (participant) {

@@ -69,13 +69,22 @@ export const useWebRTC = () => {
       setDevices({ audioInputs, videoInputs, audioOutputs });
 
       if (audioInputs.length && !selectedDevices.audioInput) {
-        setSelectedDevices((prev) => ({ ...prev, audioInput: audioInputs[0].deviceId }));
+        setSelectedDevices((prev) => ({
+          ...prev,
+          audioInput: audioInputs[0].deviceId,
+        }));
       }
       if (videoInputs.length && !selectedDevices.videoInput) {
-        setSelectedDevices((prev) => ({ ...prev, videoInput: videoInputs[0].deviceId }));
+        setSelectedDevices((prev) => ({
+          ...prev,
+          videoInput: videoInputs[0].deviceId,
+        }));
       }
       if (audioOutputs.length && !selectedDevices.audioOutput) {
-        setSelectedDevices((prev) => ({ ...prev, audioOutput: audioOutputs[0].deviceId }));
+        setSelectedDevices((prev) => ({
+          ...prev,
+          audioOutput: audioOutputs[0].deviceId,
+        }));
       }
     } catch (err) {
       console.warn("Could not enumerate devices:", err.message);
@@ -83,85 +92,107 @@ export const useWebRTC = () => {
   }, [selectedDevices]);
 
   // 2. Initialize Local Stream
-  const startPreview = useCallback(async (audioDeviceId, videoDeviceId) => {
-    try {
-      setError(null);
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach((track) => track.stop());
-      }
-
-      let stream = null;
+  const startPreview = useCallback(
+    async (audioDeviceId, videoDeviceId) => {
       try {
-        const constraints = {
-          audio: audioDeviceId ? { deviceId: { exact: audioDeviceId } } : true,
-          video: videoDeviceId
-            ? {
-              deviceId: { exact: videoDeviceId },
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-              facingMode: "user",
-            }
-            : {
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-              facingMode: "user",
-            },
-        };
-
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (mediaErr) {
-        console.warn("Camera+Mic request failed, trying audio-only fallback:", mediaErr.message);
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-          setIsVideoOff(true);
-        } catch (audioErr) {
-          console.warn("Audio-only request failed, creating dummy stream:", audioErr.message);
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = ctx.createOscillator();
-          const dst = osc.connect(ctx.createMediaStreamDestination());
-          osc.start();
-          stream = dst.stream;
-          setIsVideoOff(true);
-          setIsAudioMuted(true);
+        setError(null);
+        if (localStreamRef.current) {
+          localStreamRef.current.getTracks().forEach((track) => track.stop());
         }
-      }
 
-      setLocalStream(stream);
-      localStreamRef.current = stream;
-      if (peersRef.current.size > 0 && stream) {
-        stream.getTracks().forEach((track) => {
-          peersRef.current.forEach(({ pc }) => {
-            const senders = pc.getSenders();
-            const existingSender = senders.find((s) => s.track?.kind === track.kind);
-            if (existingSender) {
-              existingSender.replaceTrack(track).catch(() => { });
-            } else {
-              try {
-                pc.addTrack(track, stream);
-              } catch (e) {
-                console.log(e)
+        let stream = null;
+        try {
+          const constraints = {
+            audio: audioDeviceId
+              ? { deviceId: { exact: audioDeviceId } }
+              : true,
+            video: videoDeviceId
+              ? {
+                  deviceId: { exact: videoDeviceId },
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 },
+                  facingMode: "user",
+                }
+              : {
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 },
+                  facingMode: "user",
+                },
+          };
+
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (mediaErr) {
+          console.warn(
+            "Camera+Mic request failed, trying audio-only fallback:",
+            mediaErr.message,
+          );
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({
+              audio: true,
+              video: false,
+            });
+            setIsVideoOff(true);
+          } catch (audioErr) {
+            console.warn(
+              "Audio-only request failed, creating dummy stream:",
+              audioErr.message,
+            );
+            const ctx = new (
+              window.AudioContext || window.webkitAudioContext
+            )();
+            const osc = ctx.createOscillator();
+            const dst = osc.connect(ctx.createMediaStreamDestination());
+            osc.start();
+            stream = dst.stream;
+            setIsVideoOff(true);
+            setIsAudioMuted(true);
+          }
+        }
+
+        setLocalStream(stream);
+        localStreamRef.current = stream;
+        if (peersRef.current.size > 0 && stream) {
+          stream.getTracks().forEach((track) => {
+            peersRef.current.forEach(({ pc }) => {
+              const senders = pc.getSenders();
+              const existingSender = senders.find(
+                (s) => s.track?.kind === track.kind,
+              );
+              if (existingSender) {
+                existingSender.replaceTrack(track).catch(() => {});
+              } else {
+                try {
+                  pc.addTrack(track, stream);
+                } catch (e) {
+                  console.log(e);
+                }
               }
-            }
+            });
           });
-        });
+        }
+
+        await loadDevices();
+        return stream;
+      } catch (err) {
+        console.error("Failed to start media preview:", err);
+        return null;
       }
-
-      await loadDevices();
-      return stream;
-    } catch (err) {
-      console.error("Failed to start media preview:", err);
-      return null;
-    }
-  }, [loadDevices]);
-
+    },
+    [loadDevices],
+  );
 
   // 3. Audio Activity / Active Speaker Detection
   const setupAudioAnalyser = useCallback((stream, id) => {
     try {
       if (!stream || stream.getAudioTracks().length === 0) return;
 
-      if (!audioContextRef.current || audioContextRef.current.state === "closed") {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      if (
+        !audioContextRef.current ||
+        audioContextRef.current.state === "closed"
+      ) {
+        audioContextRef.current = new (
+          window.AudioContext || window.webkitAudioContext
+        )();
       }
 
       const audioContext = audioContextRef.current;
@@ -218,14 +249,22 @@ export const useWebRTC = () => {
 
   const upsertPeer = useCallback((peerData) => {
     setPeers((prevPeers) => {
-      const existingIndex = prevPeers.findIndex((p) => p.socketId === peerData.socketId);
+      const existingIndex = prevPeers.findIndex(
+        (p) => p.socketId === peerData.socketId,
+      );
       if (existingIndex >= 0) {
         const updated = [...prevPeers];
         updated[existingIndex] = {
           ...updated[existingIndex],
           ...peerData,
-          isHost: peerData.isHost !== undefined ? !!peerData.isHost : updated[existingIndex].isHost,
-          stream: peerData.stream !== undefined ? peerData.stream : updated[existingIndex].stream,
+          isHost:
+            peerData.isHost !== undefined
+              ? !!peerData.isHost
+              : updated[existingIndex].isHost,
+          stream:
+            peerData.stream !== undefined
+              ? peerData.stream
+              : updated[existingIndex].stream,
         };
         return updated;
       } else {
@@ -327,14 +366,14 @@ export const useWebRTC = () => {
           pc.addTransceiver("audio", { direction: "sendrecv" });
           pc.addTransceiver("video", { direction: "sendrecv" });
         } catch (e) {
-          console.log(e)
+          console.log(e);
         }
       }
 
       peersRef.current.set(targetSocketId, { pc, ...targetUser });
       return pc;
     },
-    [setupAudioAnalyser, upsertPeer]
+    [setupAudioAnalyser, upsertPeer],
   );
 
   // 5. Knock-to-Join & Host Admission Logic
@@ -357,37 +396,49 @@ export const useWebRTC = () => {
   const cancelKnock = useCallback((targetRoomId) => {
     const socket = getSocket();
     if (socket.connected && targetRoomId) {
-      socket.emit("cancel-knock", { roomId: targetRoomId.toLowerCase().trim() });
+      socket.emit("cancel-knock", {
+        roomId: targetRoomId.toLowerCase().trim(),
+      });
     }
     setKnockStatus("idle");
     setLoading(false);
   }, []);
 
-  const admitUser = useCallback((targetSocketId) => {
-    const socket = getSocket();
-    if (socket.connected && roomId) {
-      socket.emit("host-decision", {
-        roomId,
-        targetSocketId,
-        decision: "admit",
-      });
-      setPendingKnocks((prev) => prev.filter((k) => k.socketId !== targetSocketId));
-      toast.success("Participant admitted to call");
-    }
-  }, [roomId]);
+  const admitUser = useCallback(
+    (targetSocketId) => {
+      const socket = getSocket();
+      if (socket.connected && roomId) {
+        socket.emit("host-decision", {
+          roomId,
+          targetSocketId,
+          decision: "admit",
+        });
+        setPendingKnocks((prev) =>
+          prev.filter((k) => k.socketId !== targetSocketId),
+        );
+        toast.success("Participant admitted to call");
+      }
+    },
+    [roomId],
+  );
 
-  const denyUser = useCallback((targetSocketId) => {
-    const socket = getSocket();
-    if (socket.connected && roomId) {
-      socket.emit("host-decision", {
-        roomId,
-        targetSocketId,
-        decision: "deny",
-      });
-      setPendingKnocks((prev) => prev.filter((k) => k.socketId !== targetSocketId));
-      toast("Participant request denied", { icon: "🚫" });
-    }
-  }, [roomId]);
+  const denyUser = useCallback(
+    (targetSocketId) => {
+      const socket = getSocket();
+      if (socket.connected && roomId) {
+        socket.emit("host-decision", {
+          roomId,
+          targetSocketId,
+          decision: "deny",
+        });
+        setPendingKnocks((prev) =>
+          prev.filter((k) => k.socketId !== targetSocketId),
+        );
+        toast("Participant request denied", { icon: "🚫" });
+      }
+    },
+    [roomId],
+  );
 
   const setLinkExpiration = useCallback((targetRoomId, minutes) => {
     const socket = getSocket();
@@ -399,11 +450,10 @@ export const useWebRTC = () => {
       toast.success(
         minutes === 0
           ? "Meeting link disabled immediately"
-          : `Meeting link will expire in ${minutes} minutes`
+          : `Meeting link will expire in ${minutes} minutes`,
       );
     }
   }, []);
-
 
   // 6. Join Active Meeting Room
   const joinMeetingRoom = useCallback(
@@ -418,7 +468,10 @@ export const useWebRTC = () => {
 
         let stream = localStreamRef.current;
         if (!stream) {
-          stream = await startPreview(selectedDevices.audioInput, selectedDevices.videoInput);
+          stream = await startPreview(
+            selectedDevices.audioInput,
+            selectedDevices.videoInput,
+          );
         }
 
         if (stream) {
@@ -448,57 +501,91 @@ export const useWebRTC = () => {
         setLoading(false);
       }
     },
-    [isAudioMuted, isVideoOff, selectedDevices, setupAudioAnalyser, startPreview]
+    [
+      isAudioMuted,
+      isVideoOff,
+      selectedDevices,
+      setupAudioAnalyser,
+      startPreview,
+    ],
   );
-
 
   // 7. Socket.IO Event Subscriptions
   useEffect(() => {
     const socket = getSocket();
-
-    // Meeting Deleted by Host in Real Time
     socket.on("meeting-deleted", ({ message }) => {
-      toast.error(message || "This meeting link was deleted by the host.", { duration: 6000 });
+      toast.error(message || "This meeting link was deleted by the host.", {
+        duration: 6000,
+      });
       leaveMeetingRoom();
       setKnockStatus("expired");
       setError(message || "This meeting link was deleted by the host.");
     });
-
-    // Link Expired Error
     socket.on("link-expired-error", ({ message }) => {
       setError(message || "This meeting link has expired and is disabled.");
       setKnockStatus("expired");
       setLoading(false);
-      toast.error(message || "Meeting link expired and disabled", { duration: 6000 });
+      toast.error(message || "Meeting link expired and disabled", {
+        duration: 6000,
+      });
     });
-
-    // Knock Response (Admitted / Denied / Expired)
-    socket.on("knock-response", async ({ status, roomId: admittedRoomId, isHost: hostFlag, message }) => {
-      setLoading(false);
-      if (status === "admitted") {
-        setKnockStatus("admitted");
-        if (admittedRoomId && userRef.current) {
-          await joinMeetingRoom(admittedRoomId, userRef.current, !!hostFlag);
+    
+    socket.on(
+      "knock-response",
+      async ({ status, roomId: admittedRoomId, isHost: hostFlag, message }) => {
+        setLoading(false);
+        if (status === "admitted") {
+          setKnockStatus("admitted");
+          const targetRoom = admittedRoomId || roomId;
+          const currentUser = userRef.current || {
+            id: socket.id,
+            name: "Participant",
+          };
+          if (targetRoom) {
+            await joinMeetingRoom(targetRoom, currentUser, !!hostFlag);
+          }
+        } else if (status === "denied") {
+          setKnockStatus("denied");
+          setError(message || "The host denied your request to join.");
+          toast.error(message || "The host denied your request to join.");
+        } else if (status === "expired") {
+          setKnockStatus("expired");
+          setError(message || "This meeting link has expired and is disabled.");
         }
-      } else if (status === "denied") {
-        setKnockStatus("denied");
-        setError(message || "The host denied your request to join.");
-        toast.error(message || "The host denied your request to join.");
-      } else if (status === "expired") {
-        setKnockStatus("expired");
-        setError(message || "This meeting link has expired and is disabled.");
-      }
-    });
+      },
+    );
 
-    // Incoming Knock for Host
     socket.on("user-knocking", (knockData) => {
       setPendingKnocks((prev) => {
         if (prev.some((k) => k.socketId === knockData.socketId)) return prev;
         return [...prev, knockData];
       });
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        [587.33, 880].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+          gain.gain.setValueAtTime(0, now + idx * 0.15);
+          gain.gain.linearRampToValueAtTime(0.2, now + idx * 0.15 + 0.05);
+          gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            now + idx * 0.15 + 0.35,
+          );
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.15);
+          osc.stop(now + idx * 0.15 + 0.36);
+        });
+      } catch (e) {
+        console.log(e);
+      }
+
       toast(`${knockData.userName || "Participant"} wants to join this call`, {
         icon: "🔔",
-        duration: 6000,
+        duration: 8000,
       });
     });
 
@@ -608,7 +695,9 @@ export const useWebRTC = () => {
     socket.on("user-raise-hand", ({ socketId, userName, isHandRaised }) => {
       upsertPeer({ socketId, isHandRaised });
       if (isHandRaised) {
-        toast(`${userName || "Participant"} raised hand ✋`, { duration: 3000 });
+        toast(`${userName || "Participant"} raised hand ✋`, {
+          duration: 3000,
+        });
       }
     });
 
@@ -617,11 +706,25 @@ export const useWebRTC = () => {
     });
 
     socket.on("chat-message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-      setUnreadChatCount((prev) => prev + 1);
+      if (!msg) return;
+
+      setMessages((prev) => {
+        if (prev.some((m) => m.id && m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+
+      const myId = userRef.current?.id || userRef.current?._id;
+      const isMyMessage =
+        (myId &&
+          msg.sender?.id &&
+          msg.sender.id.toString() === myId.toString()) ||
+        msg.sender?.id === socket.id;
+
+      if (!isMyMessage) {
+        setUnreadChatCount((prev) => prev + 1);
+      }
     });
 
-    // Room Participants Update from Server (Authoritative List & Host Status)
     socket.on("room-participants-update", ({ participants }) => {
       if (Array.isArray(participants)) {
         const mySocketId = socket.id;
@@ -675,7 +778,13 @@ export const useWebRTC = () => {
       socket.off("chat-message");
       socket.off("user-left");
     };
-  }, [createPeerConnection, joinMeetingRoom, processCandidateQueue, removePeer, upsertPeer]);
+  }, [
+    createPeerConnection,
+    joinMeetingRoom,
+    processCandidateQueue,
+    removePeer,
+    upsertPeer,
+  ]);
 
   const toggleAudio = useCallback(() => {
     if (localStreamRef.current) {
@@ -726,9 +835,11 @@ export const useWebRTC = () => {
       const cameraTrack = localStreamRef.current?.getVideoTracks()[0];
       if (cameraTrack) {
         peersRef.current.forEach(({ pc }) => {
-          const sender = pc.getSenders().find((s) => s.track && s.track.kind === "video");
+          const sender = pc
+            .getSenders()
+            .find((s) => s.track && s.track.kind === "video");
           if (sender) {
-            sender.replaceTrack(cameraTrack).catch(() => { });
+            sender.replaceTrack(cameraTrack).catch(() => {});
           }
         });
       }
@@ -750,9 +861,11 @@ export const useWebRTC = () => {
         setIsScreenSharing(true);
 
         peersRef.current.forEach(({ pc }) => {
-          const sender = pc.getSenders().find((s) => s.track && s.track.kind === "video");
+          const sender = pc
+            .getSenders()
+            .find((s) => s.track && s.track.kind === "video");
           if (sender) {
-            sender.replaceTrack(screenTrack).catch(() => { });
+            sender.replaceTrack(screenTrack).catch(() => {});
           }
         });
 
@@ -764,9 +877,11 @@ export const useWebRTC = () => {
           const camTrack = localStreamRef.current?.getVideoTracks()[0];
           if (camTrack) {
             peersRef.current.forEach(({ pc }) => {
-              const sender = pc.getSenders().find((s) => s.track && s.track.kind === "video");
+              const sender = pc
+                .getSenders()
+                .find((s) => s.track && s.track.kind === "video");
               if (sender) {
-                sender.replaceTrack(camTrack).catch(() => { });
+                sender.replaceTrack(camTrack).catch(() => {});
               }
             });
           }
@@ -799,7 +914,7 @@ export const useWebRTC = () => {
         socket.emit("send-reaction", { roomId, emoji });
       }
     },
-    [roomId]
+    [roomId],
   );
 
   const sendChatMessage = useCallback(
@@ -817,7 +932,7 @@ export const useWebRTC = () => {
         },
       });
     },
-    [roomId]
+    [roomId],
   );
 
   const resetUnreadChatCount = useCallback(() => {
@@ -845,8 +960,8 @@ export const useWebRTC = () => {
     peersRef.current.forEach(({ pc }) => {
       try {
         pc.close();
-      } catch (err) { 
-        console.log(err)
+      } catch (err) {
+        console.log(err);
       }
     });
 
@@ -855,7 +970,7 @@ export const useWebRTC = () => {
     analysersRef.current.clear();
 
     if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-      audioContextRef.current.close().catch(() => { });
+      audioContextRef.current.close().catch(() => {});
     }
 
     if (animationFrameRef.current) {
@@ -886,8 +1001,11 @@ export const useWebRTC = () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close().catch(() => { });
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state !== "closed"
+      ) {
+        audioContextRef.current.close().catch(() => {});
       }
     };
   }, []);
@@ -907,6 +1025,7 @@ export const useWebRTC = () => {
     error,
     loading,
     knockStatus,
+    setKnockStatus,
     pendingKnocks,
     askToJoin,
     cancelKnock,

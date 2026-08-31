@@ -36,145 +36,159 @@ export const notifyMeetingDeleted = (roomId) => {
   rooms.delete(normalized);
   pendingKnocks.delete(normalized);
   roomHosts.delete(normalized);
-
-  console.log(`🗑️ [Meeting Deleted] Room ${normalized} removed and broadcast to all users.`);
 };
 
 export const registerMeetingSocket = (io, socket) => {
-  socket.on("join-room", async ({ roomId, userId, userName, avatar, isMuted, isVideoOff }) => {
-    if (!roomId || !userId) return;
+  socket.on(
+    "join-room",
+    async ({
+      roomId,
+      userId,
+      userName,
+      avatar,
+      isMuted,
+      isVideoOff,
+      isHost,
+    }) => {
+      if (!roomId) return;
 
-    const normalizedRoomId = roomId.toLowerCase().trim();
-    let actualIsHost = false;
+      const normalizedRoomId = roomId.toLowerCase().trim();
+      let actualIsHost = false;
 
-    try {
-      const session = await Session.findOne({
-        roomId: new RegExp(`^${normalizedRoomId}$`, "i"),
+      try {
+        const session = await Session.findOne({
+          roomId: new RegExp(`^${normalizedRoomId}$`, "i"),
+        });
+
+        if (session) {
+          if (session.isExpired && session.isExpired()) {
+            socket.emit("link-expired-error", {
+              message:
+                "This meeting link has expired and is disabled by the host.",
+            });
+            return;
+          }
+
+          if (
+            session.host &&
+            userId &&
+            session.host.toString() === userId.toString()
+          ) {
+            actualIsHost = true;
+          }
+        }
+      } catch (err) {
+        console.warn("DB verification error on join-room:", err.message);
+      }
+
+      socket.join(normalizedRoomId);
+
+      if (!rooms.has(normalizedRoomId)) {
+        rooms.set(normalizedRoomId, new Map());
+      }
+
+      const roomParticipants = rooms.get(normalizedRoomId);
+
+      if (actualIsHost) {
+        roomHosts.set(normalizedRoomId, socket.id);
+      }
+
+      const participantData = {
+        socketId: socket.id,
+        userId: (userId || socket.id).toString(),
+        userName: userName || "Participant",
+        avatar: avatar || "",
+        isHost: actualIsHost,
+        isMuted: !!isMuted,
+        isVideoOff: !!isVideoOff,
+        isScreenSharing: false,
+        isHandRaised: false,
+        joinedAt: new Date().toISOString(),
+      };
+
+      if (pendingKnocks.has(normalizedRoomId)) {
+        pendingKnocks.get(normalizedRoomId).delete(socket.id);
+      }
+
+      const existingParticipants = [];
+      roomParticipants.forEach((data, sId) => {
+        if (sId !== socket.id) {
+          existingParticipants.push(data);
+        }
       });
 
-      if (session) {
-        if (session.isExpired && session.isExpired()) {
-          socket.emit("link-expired-error", {
-            message: "This meeting link has expired and is disabled by the host.",
-          });
-          return;
-        }
-
-        if (session.host.toString() === userId.toString()) {
-          actualIsHost = true;
-        }
-      }
-    } catch (err) {
-      console.warn("DB verification error on join-room:", err.message);
-    }
-
-    socket.join(normalizedRoomId);
-
-    if (!rooms.has(normalizedRoomId)) {
-      rooms.set(normalizedRoomId, new Map());
-    }
-
-    const roomParticipants = rooms.get(normalizedRoomId);
-
-    if (actualIsHost) {
-      roomHosts.set(normalizedRoomId, socket.id);
-    }
-
-    const participantData = {
-      socketId: socket.id,
-      userId: userId.toString(),
-      userName: userName || "Participant",
-      avatar: avatar || "",
-      isHost: actualIsHost,
-      isMuted: !!isMuted,
-      isVideoOff: !!isVideoOff,
-      isScreenSharing: false,
-      isHandRaised: false,
-      joinedAt: new Date().toISOString(),
-    };
-
-    if (pendingKnocks.has(normalizedRoomId)) {
-      pendingKnocks.get(normalizedRoomId).delete(socket.id);
-    }
-
-    const existingParticipants = [];
-    roomParticipants.forEach((data, sId) => {
-      if (sId !== socket.id) {
-        existingParticipants.push(data);
-      }
-    });
-
-    roomParticipants.set(socket.id, participantData);
-    socketLookup.set(socket.id, {
-      roomId: normalizedRoomId,
-      userId: userId.toString(),
-      isHost: actualIsHost,
-    });
-
-    console.log(
-      `👤 [Socket] User "${userName}" (${socket.id}) ${actualIsHost ? "[HOST / CREATOR]" : "[PARTICIPANT]"} joined room: ${normalizedRoomId}. Total: ${roomParticipants.size}`
-    );
-    // Persist participant into database session record so it appears in their Recent Meetings
-    try {
-      const sessionDoc = await Session.findOne({
-        roomId: new RegExp(`^${normalizedRoomId}$`, "i"),
+      roomParticipants.set(socket.id, participantData);
+      socketLookup.set(socket.id, {
+        roomId: normalizedRoomId,
+        userId: (userId || socket.id).toString(),
+        isHost: actualIsHost,
       });
 
-      if (sessionDoc) {
-        sessionDoc.status = "active";
-        const pIdx = sessionDoc.participants.findIndex(
-          (p) => p.userId.toString() === userId.toString()
-        );
+      try {
+        const sessionDoc = await Session.findOne({
+          roomId: new RegExp(`^${normalizedRoomId}$`, "i"),
+        });
 
-        if (pIdx >= 0) {
-          sessionDoc.participants[pIdx].leftAt = null;
-          sessionDoc.participants[pIdx].joinedAt = new Date();
-          sessionDoc.participants[pIdx].isHost = actualIsHost;
-          sessionDoc.participants[pIdx].userName = userName || sessionDoc.participants[pIdx].userName;
-          sessionDoc.participants[pIdx].avatar = avatar || sessionDoc.participants[pIdx].avatar;
-        } else {
-          sessionDoc.participants.push({
-            userId: userId.toString(),
-            userName: userName || "Participant",
-            avatar: avatar || "",
-            isHost: actualIsHost,
-            joinedAt: new Date(),
-          });
+        if (sessionDoc) {
+          sessionDoc.status = "active";
+          const pIdx = sessionDoc.participants.findIndex(
+            (p) =>
+              p.userId &&
+              p.userId.toString() === (userId || socket.id).toString(),
+          );
+
+          if (pIdx >= 0) {
+            sessionDoc.participants[pIdx].leftAt = null;
+            sessionDoc.participants[pIdx].joinedAt = new Date();
+            sessionDoc.participants[pIdx].isHost = actualIsHost;
+            sessionDoc.participants[pIdx].userName =
+              userName || sessionDoc.participants[pIdx].userName;
+            sessionDoc.participants[pIdx].avatar =
+              avatar || sessionDoc.participants[pIdx].avatar;
+          } else {
+            sessionDoc.participants.push({
+              userId: (userId || socket.id).toString(),
+              userName: userName || "Participant",
+              avatar: avatar || "",
+              isHost: actualIsHost,
+              joinedAt: new Date(),
+            });
+          }
+
+          await sessionDoc.save();
         }
-
-        await sessionDoc.save();
+      } catch (e) {
+        console.warn("DB save on join-room error:", e.message);
       }
-    } catch (e) {
-      console.warn("DB save on join-room error:", e.message);
-    }
 
-    socket.emit("all-users", {
-      users: existingParticipants,
-      isHost: actualIsHost,
-    });
+      socket.emit("all-users", {
+        users: existingParticipants,
+        isHost: actualIsHost,
+      });
 
-    if (actualIsHost && pendingKnocks.has(normalizedRoomId)) {
-      const knocks = Array.from(pendingKnocks.get(normalizedRoomId).values());
-      if (knocks.length > 0) {
-        socket.emit("pending-knocks-sync", { knocks });
+      if (actualIsHost && pendingKnocks.has(normalizedRoomId)) {
+        const knocks = Array.from(pendingKnocks.get(normalizedRoomId).values());
+        if (knocks.length > 0) {
+          socket.emit("pending-knocks-sync", { knocks });
+        }
       }
-    }
 
-    socket.to(normalizedRoomId).emit("user-joined", {
-      socketId: socket.id,
-      userId: userId.toString(),
-      userName: participantData.userName,
-      avatar: participantData.avatar,
-      isHost: actualIsHost,
-      isMuted: participantData.isMuted,
-      isVideoOff: participantData.isVideoOff,
-      isHandRaised: participantData.isHandRaised,
-    });
+      socket.to(normalizedRoomId).emit("user-joined", {
+        socketId: socket.id,
+        userId: participantData.userId,
+        userName: participantData.userName,
+        avatar: participantData.avatar,
+        isHost: actualIsHost,
+        isMuted: participantData.isMuted,
+        isVideoOff: participantData.isVideoOff,
+        isHandRaised: participantData.isHandRaised,
+      });
 
-    io.to(normalizedRoomId).emit("room-participants-update", {
-      participants: Array.from(roomParticipants.values()),
-    });
-  });
+      io.to(normalizedRoomId).emit("room-participants-update", {
+        participants: Array.from(roomParticipants.values()),
+      });
+    },
+  );
 
   socket.on("knock-to-join", async ({ roomId, user }) => {
     if (!roomId || !user) return;
@@ -190,17 +204,29 @@ export const registerMeetingSocket = (io, socket) => {
         if (session.isExpired && session.isExpired()) {
           socket.emit("knock-response", {
             status: "expired",
-            message: "This meeting link has expired and is disabled by the host.",
+            message:
+              "This meeting link has expired and is disabled by the host.",
           });
           return;
         }
 
-        if (session.host.toString() === user.id?.toString()) {
-          socket.emit("knock-response", { status: "admitted", isHost: true });
+        const isUserHost = !!(
+          session.host &&
+          (user.id || user._id) &&
+          session.host.toString() === (user.id || user._id).toString()
+        );
+        if (isUserHost) {
+          socket.emit("knock-response", {
+            status: "admitted",
+            roomId: normalizedRoomId,
+            isHost: true,
+          });
           return;
         }
       }
-    } catch (e) { }
+    } catch (e) {
+      console.warn("Knock DB lookup notice:", e.message);
+    }
 
     if (!pendingKnocks.has(normalizedRoomId)) {
       pendingKnocks.set(normalizedRoomId, new Map());
@@ -208,29 +234,28 @@ export const registerMeetingSocket = (io, socket) => {
 
     const knockData = {
       socketId: socket.id,
-      userId: user.id || socket.id,
+      userId: user.id || user._id || socket.id,
       userName: user.name || "Guest Participant",
       avatar: user.avatar || "",
       requestedAt: new Date().toISOString(),
     };
 
     pendingKnocks.get(normalizedRoomId).set(socket.id, knockData);
-    socketLookup.set(socket.id, { roomId: normalizedRoomId, userId: user.id });
+    socketLookup.set(socket.id, {
+      roomId: normalizedRoomId,
+      userId: user.id || socket.id,
+    });
 
-    console.log(
-      `🚪 [Knock] User "${knockData.userName}" (${socket.id}) is asking to join room: ${normalizedRoomId}`
-    );
+    io.to(normalizedRoomId).emit("user-knocking", knockData);
 
-    const hostSocketId = roomHosts.get(normalizedRoomId);
-    if (hostSocketId) {
-      io.to(hostSocketId).emit("user-knocking", knockData);
-    } else {
-      socket.to(normalizedRoomId).emit("user-knocking", knockData);
-    }
+    const knocks = Array.from(pendingKnocks.get(normalizedRoomId).values());
+    io.to(normalizedRoomId).emit("pending-knocks-sync", { knocks });
   });
 
   socket.on("host-decision", ({ roomId, targetSocketId, decision }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId || !targetSocketId) return;
 
     if (pendingKnocks.has(normalizedRoomId)) {
@@ -238,42 +263,55 @@ export const registerMeetingSocket = (io, socket) => {
     }
 
     if (decision === "admit") {
-      console.log(`✅ [Host Decision] Admitted socket: ${targetSocketId} into room: ${normalizedRoomId}`);
       io.to(targetSocketId).emit("knock-response", {
         status: "admitted",
         roomId: normalizedRoomId,
       });
     } else {
-      console.log(`❌ [Host Decision] Denied socket: ${targetSocketId} for room: ${normalizedRoomId}`);
       io.to(targetSocketId).emit("knock-response", {
         status: "denied",
         message: "The host denied your request to join this meeting.",
       });
     }
 
-    const hostSocketId = roomHosts.get(normalizedRoomId);
-    if (hostSocketId && pendingKnocks.has(normalizedRoomId)) {
-      io.to(hostSocketId).emit("pending-knocks-sync", {
-        knocks: Array.from(pendingKnocks.get(normalizedRoomId).values()),
-      });
-    }
+    const knocks = pendingKnocks.has(normalizedRoomId)
+      ? Array.from(pendingKnocks.get(normalizedRoomId).values())
+      : [];
+    io.to(normalizedRoomId).emit("pending-knocks-sync", { knocks });
   });
 
   socket.on("cancel-knock", ({ roomId }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (normalizedRoomId && pendingKnocks.has(normalizedRoomId)) {
       pendingKnocks.get(normalizedRoomId).delete(socket.id);
-      const hostSocketId = roomHosts.get(normalizedRoomId);
-      if (hostSocketId) {
-        io.to(hostSocketId).emit("pending-knocks-sync", {
-          knocks: Array.from(pendingKnocks.get(normalizedRoomId).values()),
-        });
-      }
+      const knocks = Array.from(pendingKnocks.get(normalizedRoomId).values());
+      io.to(normalizedRoomId).emit("pending-knocks-sync", { knocks });
     }
   });
 
+  socket.on("toggle-admission", async ({ roomId, requireAdmission }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId) return;
+
+    try {
+      await Session.findOneAndUpdate(
+        { roomId: new RegExp(`^${normalizedRoomId}$`, "i") },
+        { requireAdmission: !!requireAdmission },
+      );
+      io.to(normalizedRoomId).emit("admission-toggled", {
+        requireAdmission: !!requireAdmission,
+      });
+    } catch (e) {}
+  });
+
   socket.on("set-link-expiration", async ({ roomId, minutes }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId) return;
 
     try {
@@ -293,12 +331,13 @@ export const registerMeetingSocket = (io, socket) => {
           isLinkDisabled,
           expiresAt,
           status: isLinkDisabled ? "expired" : "active",
-        }
+        },
       );
 
       console.log(
-        `⏱️ [Link Expiration] Room ${normalizedRoomId} expiration set: ${isLinkDisabled ? "Disabled immediately" : `${minutes} minutes`
-        }`
+        `⏱️ [Link Expiration] Room ${normalizedRoomId} expiration set: ${
+          isLinkDisabled ? "Disabled immediately" : `${minutes} minutes`
+        }`,
       );
 
       if (isLinkDisabled) {
@@ -312,7 +351,9 @@ export const registerMeetingSocket = (io, socket) => {
   });
 
   socket.on("delete-meeting", async ({ roomId }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId) return;
 
     try {
@@ -321,7 +362,11 @@ export const registerMeetingSocket = (io, socket) => {
       });
 
       const lookup = socketLookup.get(socket.id);
-      if (session && (!lookup?.userId || session.host.toString() === lookup.userId.toString())) {
+      if (
+        session &&
+        (!lookup?.userId ||
+          session.host.toString() === lookup.userId.toString())
+      ) {
         await Session.deleteOne({ _id: session._id });
         notifyMeetingDeleted(normalizedRoomId);
       }
@@ -362,7 +407,9 @@ export const registerMeetingSocket = (io, socket) => {
   });
 
   socket.on("toggle-audio", ({ roomId, isMuted }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId || !rooms.has(normalizedRoomId)) return;
 
     const participant = rooms.get(normalizedRoomId).get(socket.id);
@@ -377,7 +424,9 @@ export const registerMeetingSocket = (io, socket) => {
   });
 
   socket.on("toggle-video", ({ roomId, isVideoOff }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId || !rooms.has(normalizedRoomId)) return;
 
     const participant = rooms.get(normalizedRoomId).get(socket.id);
@@ -392,7 +441,9 @@ export const registerMeetingSocket = (io, socket) => {
   });
 
   socket.on("screen-share", ({ roomId, isScreenSharing }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId || !rooms.has(normalizedRoomId)) return;
 
     const participant = rooms.get(normalizedRoomId).get(socket.id);
@@ -407,7 +458,9 @@ export const registerMeetingSocket = (io, socket) => {
   });
 
   socket.on("raise-hand", ({ roomId, isHandRaised }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId || !rooms.has(normalizedRoomId)) return;
 
     const participant = rooms.get(normalizedRoomId).get(socket.id);
@@ -423,7 +476,9 @@ export const registerMeetingSocket = (io, socket) => {
   });
 
   socket.on("send-reaction", ({ roomId, emoji }) => {
-    const normalizedRoomId = roomId ? roomId.toLowerCase().trim() : socketLookup.get(socket.id)?.roomId;
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
     if (!normalizedRoomId || !rooms.has(normalizedRoomId)) return;
 
     const participant = rooms.get(normalizedRoomId).get(socket.id);
@@ -433,6 +488,47 @@ export const registerMeetingSocket = (io, socket) => {
       userId: participant?.userId || socket.id,
       userName: participant?.userName || "Participant",
       emoji,
+      timestamp: Date.now(),
+    });
+  });
+
+  socket.on("send-chat-message", ({ roomId, text, sender }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId || !text || !text.trim()) return;
+
+    const participant = rooms.has(normalizedRoomId)
+      ? rooms.get(normalizedRoomId).get(socket.id)
+      : null;
+
+    const messageData = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      text: text.trim(),
+      sender: {
+        id: sender?.id || participant?.userId || socket.id,
+        name: sender?.name || participant?.userName || "Participant",
+        avatar: sender?.avatar || participant?.avatar || "",
+      },
+      timestamp: Date.now(),
+    };
+
+    console.log(
+      `💬 [Chat] ${messageData.sender.name} in room ${normalizedRoomId}: "${messageData.text}"`,
+    );
+    io.to(normalizedRoomId).emit("chat-message", messageData);
+  });
+
+  socket.on("send-caption", ({ roomId, text, userName }) => {
+    const normalizedRoomId = roomId
+      ? roomId.toLowerCase().trim()
+      : socketLookup.get(socket.id)?.roomId;
+    if (!normalizedRoomId || !text) return;
+
+    io.to(normalizedRoomId).emit("caption-update", {
+      text,
+      userName: userName || "Participant",
+      socketId: socket.id,
       timestamp: Date.now(),
     });
   });
@@ -448,11 +544,15 @@ export const registerMeetingSocket = (io, socket) => {
 
 const handleUserLeave = async (io, socket, specifiedRoomId) => {
   const lookup = socketLookup.get(socket.id);
-  const roomId = specifiedRoomId ? specifiedRoomId.toLowerCase().trim() : lookup?.roomId;
+  const roomId = specifiedRoomId
+    ? specifiedRoomId.toLowerCase().trim()
+    : lookup?.roomId;
 
   if (roomId) {
     if (pendingKnocks.has(roomId)) {
       pendingKnocks.get(roomId).delete(socket.id);
+      const knocks = Array.from(pendingKnocks.get(roomId).values());
+      io.to(roomId).emit("pending-knocks-sync", { knocks });
     }
 
     if (rooms.has(roomId)) {
@@ -466,10 +566,6 @@ const handleUserLeave = async (io, socket, specifiedRoomId) => {
         if (participant.isHost || roomHosts.get(roomId) === socket.id) {
           roomHosts.delete(roomId);
         }
-
-        console.log(
-          `🚪 [Socket] User "${participant.userName}" (${socket.id}) left room: ${roomId}. Remaining: ${roomParticipants.size}`
-        );
 
         socket.to(roomId).emit("user-left", {
           socketId: socket.id,
@@ -486,9 +582,11 @@ const handleUserLeave = async (io, socket, specifiedRoomId) => {
           try {
             await Session.findOneAndUpdate(
               { roomId: new RegExp(`^${roomId}$`, "i") },
-              { status: "ended", endedAt: new Date() }
+              { status: "ended", endedAt: new Date() },
             );
-            console.log(`🏁 [Session] Room ${roomId} has 0 participants. Automatically marked session as ended.`);
+            console.log(
+              `🏁 [Session] Room ${roomId} has 0 participants. Automatically marked session as ended.`,
+            );
           } catch (dbErr) {
             console.warn("Auto-end session error:", dbErr.message);
           }

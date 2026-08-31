@@ -9,7 +9,10 @@ export const generateOTP = () => {
 };
 
 export const hashOTP = (otp) => {
-  return crypto.createHash("sha256").update(otp.toString().trim()).digest("hex");
+  return crypto
+    .createHash("sha256")
+    .update(otp.toString().trim())
+    .digest("hex");
 };
 
 export const createOtpRecord = () => {
@@ -45,13 +48,17 @@ export const getRemainingCooldown = (lastSentAt) => {
 
 export const verifyOtpRecord = (otpRecord, enteredOtp) => {
   if (!otpRecord || !otpRecord.hash) {
-    return { valid: false, error: "No verification code requested or already verified" };
+    return {
+      valid: false,
+      error: "No verification code requested or already verified",
+    };
   }
 
   if (otpRecord.attempts >= MAX_OTP_ATTEMPTS) {
     return {
       valid: false,
-      error: "Too many failed attempts. Please request a new verification code.",
+      error:
+        "Too many failed attempts. Please request a new verification code.",
     };
   }
 

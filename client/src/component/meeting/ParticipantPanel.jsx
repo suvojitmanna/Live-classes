@@ -9,6 +9,8 @@ import {
   FaSearch,
   FaLink,
   FaHandPaper,
+  FaUserClock,
+  FaCheck,
 } from "react-icons/fa";
 import Avatar from "../common/Avatar";
 import toast from "react-hot-toast";
@@ -19,6 +21,10 @@ const ParticipantPanel = ({
   localIsVideoOff,
   localIsHandRaised,
   peers = [],
+  pendingKnocks = [],
+  onAdmit,
+  onDeny,
+  isHost,
   hostName,
   onClose,
   roomId,
@@ -33,7 +39,7 @@ const ParticipantPanel = ({
       isMuted: localIsMuted,
       isVideoOff: localIsVideoOff,
       isHandRaised: localIsHandRaised,
-      isHost: hostName ? currentUser?.name === hostName : true,
+      isHost: !!isHost,
     },
     ...peers.map((p) => ({
       id: p.socketId,
@@ -42,12 +48,12 @@ const ParticipantPanel = ({
       isMuted: p.isMuted,
       isVideoOff: p.isVideoOff,
       isHandRaised: p.isHandRaised,
-      isHost: hostName ? p.userName === hostName : !!p.isHost,
+      isHost: !!p.isHost,
     })),
   ];
 
   const filteredParticipants = allParticipants.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleCopyLink = () => {
@@ -98,7 +104,51 @@ const ParticipantPanel = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {/* Waiting to Join Section for Host */}
+        {isHost && pendingKnocks && pendingKnocks.length > 0 && (
+          <div className="space-y-2 p-2.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/60 animate-fade-in">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#1a73e8] dark:text-[#8ab4f8]">
+              <FaUserClock className="w-3.5 h-3.5" />
+              <span>Waiting to Join ({pendingKnocks.length})</span>
+            </div>
+
+            <div className="space-y-2">
+              {pendingKnocks.map((knock) => (
+                <div
+                  key={knock.socketId}
+                  className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#282a2d] shadow-sm border border-blue-100 dark:border-gray-700/50"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Avatar name={knock.userName} avatar={knock.avatar} size="sm" />
+                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">
+                      {knock.userName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => onAdmit?.(knock.socketId)}
+                      className="p-1.5 px-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-[11px] font-bold flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
+                      title="Admit"
+                    >
+                      <FaCheck className="w-2.5 h-2.5" />
+                      <span>Admit</span>
+                    </button>
+                    <button
+                      onClick={() => onDeny?.(knock.socketId)}
+                      className="p-1.5 px-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 text-[11px] transition-colors cursor-pointer"
+                      title="Deny"
+                    >
+                      <FaTimes className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wider">
           In-call ({filteredParticipants.length})
         </div>

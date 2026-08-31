@@ -4,6 +4,7 @@ import { ROUTES } from "../utils/constants";
 import JoinForm from "../component/session/JoinForm";
 import { FaArrowLeft } from "react-icons/fa";
 import { motion } from "framer-motion";
+import api from "../service/api";
 import toast from "react-hot-toast";
 
 const JoinSession = () => {
@@ -30,13 +31,12 @@ const JoinSession = () => {
     e.preventDefault();
     setLocalError("");
 
-    if (!roomId) {
+    if (!roomId || !roomId.trim()) {
       setLocalError("Please enter a meeting code");
       toast.error("Please enter a meeting code");
       return;
     }
 
-    setLoading(true);
     let code = roomId.trim();
     if (code.includes("roomId=")) {
       const match = code.match(/roomId=([a-zA-Z0-9-]+)/);
@@ -46,7 +46,37 @@ const JoinSession = () => {
       if (parts[1]) code = parts[1].split("?")[0];
     }
 
-    navigate(`${ROUTES.MEETING}/${code.toLowerCase()}`);
+    const cleanCode = code.toLowerCase().trim();
+
+    // Verify session availability before joining
+    setLoading(true);
+    try {
+      const response = await api.get(`/session/${cleanCode}`);
+      if (response.data.success) {
+        const session = response.data.data.session;
+        if (session.isLinkDisabled || session.status === "expired") {
+          setLocalError("This meeting link has been permanently disabled by the host.");
+          toast.error("This meeting link is disabled");
+          setLoading(false);
+          return;
+        }
+
+        navigate(`${ROUTES.MEETING}/${cleanCode}`);
+      }
+    } catch (err) {
+      setLoading(false);
+      if (err.response?.status === 404) {
+        const msg = "Invalid meeting code. This meeting session does not exist.";
+        setLocalError(msg);
+        toast.error(msg);
+      } else if (err.response?.status === 403 || err.response?.data?.isExpired) {
+        const msg = "This meeting link has been permanently disabled by the host.";
+        setLocalError(msg);
+        toast.error(msg);
+      } else {
+        navigate(`${ROUTES.MEETING}/${cleanCode}`);
+      }
+    }
   };
 
   return (
@@ -54,7 +84,7 @@ const JoinSession = () => {
       <div className="max-w-xl mx-auto mb-6">
         <button
           onClick={() => navigate(ROUTES.DASHBOARD)}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
         >
           <FaArrowLeft className="w-3 h-3" />
           <span>Back to Dashboard</span>

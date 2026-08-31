@@ -31,20 +31,22 @@ router.get("/list", listSession);
 
 router.post("/create", createSession);
 
-router.post("/join", [
-  body("roomId").trim().notEmpty().withMessage("Room ID is required")],
+router.post(
+  "/join",
+  [body("roomId").trim().notEmpty().withMessage("Room ID is required")],
   handleValidationError,
-  JoinSession
+  JoinSession,
 );
 
 router.post("/expire/:roomId", expireSession);
 
 router.post("/end/:sessionId", endSession);
 
-router.post("/leave", [
-  body("roomId").trim().notEmpty().withMessage("Room ID is required")],
+router.post(
+  "/leave",
+  [body("roomId").trim().notEmpty().withMessage("Room ID is required")],
   handleValidationError,
-  leaveSession
+  leaveSession,
 );
 
 router.delete("/delete/:roomId", deleteSession);

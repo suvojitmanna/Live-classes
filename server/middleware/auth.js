@@ -15,7 +15,6 @@ export const protect = async (req, res, next) => {
         }
         try {
             const decode = verifyToken(token);
-            console.log('this is token decode result', decode)
             req.user = decode;
             next();
         } catch (error) {

@@ -6,6 +6,7 @@ import connectdb from "./config/db.js";
 import errorHandler from "./middleware/errorhendeller.js";
 import authRoute from "./routes/authroute.js";
 import sessionRoutes from "./routes/SessionRoute.js";
+import callRoutes from "./routes/callRoute.js";
 import { initializeSocket } from "./socket/index.js";
 
 dotenv.config();
@@ -48,6 +49,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoute);
 app.use("/api/session", sessionRoutes);
+app.use("/api/call", callRoutes);
 
 app.use(errorHandler);
 
