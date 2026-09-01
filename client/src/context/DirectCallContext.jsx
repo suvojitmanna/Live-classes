@@ -10,10 +10,10 @@ import { useAuth } from "./AuthContext";
 import { getSocket } from "../service/socket";
 import api from "../service/api";
 import { API_ENDPOINTS, getIceServers } from "../utils/constants";
+import { globalBackgroundProcessor } from "../utils/videoBackgroundProcessor";
 import toast from "react-hot-toast";
 
 const DirectCallContext = createContext();
-
 export const DirectCallProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
 
@@ -31,8 +31,11 @@ export const DirectCallProvider = ({ children }) => {
   const [callDuration, setCallDuration] = useState(0);
   const [callHistory, setCallHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [visualEffect, setVisualEffect] = useState("none");
+
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
+  const rawCameraStreamRef = useRef(null);
   const screenStreamRef = useRef(null);
   const targetSocketRef = useRef(null);
   const activeCallRef = useRef(null);
@@ -135,7 +138,6 @@ export const DirectCallProvider = ({ children }) => {
     }
   }, [getAudioContext, stopRingtones]);
 
-  // Play Call Ended Sound
   const playEndCallChime = useCallback(() => {
     stopRingtones();
     try {
@@ -159,7 +161,9 @@ export const DirectCallProvider = ({ children }) => {
         osc.start(now + idx * 0.14);
         osc.stop(now + idx * 0.14 + 0.22);
       });
-    } catch (e) { }
+    } catch (e) {
+      console.log(e);
+     }
   }, [getAudioContext, stopRingtones]);
 
   const setupAudioMonitor = useCallback(
@@ -295,6 +299,12 @@ export const DirectCallProvider = ({ children }) => {
       animFrameRef.current = null;
     }
 
+    if (globalBackgroundProcessor.isRunning) {
+      globalBackgroundProcessor.stop();
+    }
+    rawCameraStreamRef.current = null;
+    setVisualEffect("none");
+
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach((t) => t.stop());
       localStreamRef.current = null;
@@ -402,7 +412,6 @@ export const DirectCallProvider = ({ children }) => {
         setLocalStream(stream);
         setupAudioMonitor(stream, true);
 
-        // Prepare Outgoing Call State
         setCallState("outgoing-ringing");
         setOutgoingCall({
           targetEmail: targetEmail.trim().toLowerCase(),
@@ -413,7 +422,6 @@ export const DirectCallProvider = ({ children }) => {
 
         playOutgoingRingtone();
 
-        // Emit call initiation
         socket.emit("direct-call:initiate", {
           targetEmail: targetEmail.trim().toLowerCase(),
           callType,
@@ -462,7 +470,6 @@ export const DirectCallProvider = ({ children }) => {
         isIncoming: true,
       });
 
-      // Emit accept to server
       socket.emit("direct-call:accept", { callId: incomingCall.callId });
       setIncomingCall(null);
     } catch (err) {
@@ -631,6 +638,78 @@ export const DirectCallProvider = ({ children }) => {
     }
   }, [isScreenSharing]);
 
+  const applyVisualEffect = useCallback(
+    async (effect) => {
+      const effectId = typeof effect === "string" ? effect : effect?.id || "none";
+      setVisualEffect(effectId);
+
+      if (!localStreamRef.current) return;
+
+      if (effectId === "none") {
+        if (rawCameraStreamRef.current) {
+          const rawVideoTrack = rawCameraStreamRef.current.getVideoTracks()[0];
+          if (rawVideoTrack) {
+            rawVideoTrack.enabled = !isVideoOff;
+            if (pcRef.current) {
+              const senders = pcRef.current.getSenders();
+              const videoSender = senders.find(
+                (s) => s.track && s.track.kind === "video"
+              );
+              if (videoSender) {
+                videoSender.replaceTrack(rawVideoTrack).catch(() => { });
+              }
+            }
+            const restoredStream = new MediaStream([
+              rawVideoTrack,
+              ...rawCameraStreamRef.current.getAudioTracks(),
+            ]);
+            localStreamRef.current = restoredStream;
+            setLocalStream(restoredStream);
+          }
+          globalBackgroundProcessor.stop();
+        }
+        return;
+      }
+
+      try {
+        if (!rawCameraStreamRef.current) {
+          rawCameraStreamRef.current = localStreamRef.current;
+        }
+
+        globalBackgroundProcessor.setEffect(effect);
+
+        if (!globalBackgroundProcessor.isRunning) {
+          const processedStream = await globalBackgroundProcessor.start(
+            rawCameraStreamRef.current,
+            effect
+          );
+          const processedVideoTrack = processedStream.getVideoTracks()[0];
+          if (processedVideoTrack) {
+            processedVideoTrack.enabled = !isVideoOff;
+            if (pcRef.current) {
+              const senders = pcRef.current.getSenders();
+              const videoSender = senders.find(
+                (s) => s.track && s.track.kind === "video"
+              );
+              if (videoSender) {
+                videoSender.replaceTrack(processedVideoTrack).catch(() => { });
+              }
+            }
+            const combinedStream = new MediaStream([
+              processedVideoTrack,
+              ...rawCameraStreamRef.current.getAudioTracks(),
+            ]);
+            localStreamRef.current = combinedStream;
+            setLocalStream(combinedStream);
+          }
+        }
+      } catch (err) {
+        console.warn("DirectCall applyVisualEffect error:", err);
+      }
+    },
+    [isVideoOff]
+  );
+
   useEffect(() => {
     if (!isAuthenticated || !user) return;
 
@@ -639,7 +718,6 @@ export const DirectCallProvider = ({ children }) => {
 
     const currentUserId = user.id || user._id;
 
-    // Register user socket presence
     const handleConnect = () => {
       socket.emit("direct-call:register", { userId: currentUserId });
     };
@@ -701,14 +779,12 @@ export const DirectCallProvider = ({ children }) => {
       }
     };
 
-    // 4. Receiver Connected Event
     const handleCallConnected = ({ callId, targetSocketId }) => {
       stopRingtones();
       setCallState("connecting");
       targetSocketRef.current = targetSocketId;
     };
 
-    // 5. Incoming WebRTC Offer (Receiver processes and answers)
     const handleOffer = async ({ callId, callerSocketId, sdp }) => {
       targetSocketRef.current = callerSocketId;
       const pc = createPeerConnection(callerSocketId, callId);
@@ -733,7 +809,6 @@ export const DirectCallProvider = ({ children }) => {
       }
     };
 
-    // 6. Incoming WebRTC Answer (Caller receives answer)
     const handleAnswer = async ({ callId, answerSocketId, sdp }) => {
       const pc = pcRef.current;
       if (pc) {
@@ -747,7 +822,6 @@ export const DirectCallProvider = ({ children }) => {
       }
     };
 
-    // 7. Incoming ICE Candidate
     const handleIceCandidate = async ({ candidate }) => {
       const pc = pcRef.current;
       if (pc && pc.remoteDescription) {
@@ -766,7 +840,6 @@ export const DirectCallProvider = ({ children }) => {
       // Peer toggled media
     };
 
-    // 9. Call Declined by Recipient
     const handleCallDeclined = ({ reason }) => {
       stopRingtones();
       toast.error(reason || "Recipient declined the call", { icon: "🚫" });
@@ -774,7 +847,6 @@ export const DirectCallProvider = ({ children }) => {
       fetchCallHistory();
     };
 
-    // 10. Call Cancelled by Caller
     const handleCallCancelled = () => {
       stopRingtones();
       toast("Caller cancelled the call", { icon: "⏹️" });
@@ -782,7 +854,6 @@ export const DirectCallProvider = ({ children }) => {
       fetchCallHistory();
     };
 
-    // 11. User Busy
     const handleUserBusy = ({ message }) => {
       stopRingtones();
       toast.error(message || "User is busy on another call", { icon: "⏳" });
@@ -790,7 +861,6 @@ export const DirectCallProvider = ({ children }) => {
       fetchCallHistory();
     };
 
-    // 12. User Offline
     const handleUserOffline = ({ message }) => {
       stopRingtones();
       toast.error(message || "User is currently offline", { icon: "📴" });
@@ -798,7 +868,6 @@ export const DirectCallProvider = ({ children }) => {
       fetchCallHistory();
     };
 
-    // 13. Direct Call Error
     const handleCallError = ({ message }) => {
       stopRingtones();
       toast.error(message || "Call error occurred", { icon: "⚠️" });
@@ -806,7 +875,6 @@ export const DirectCallProvider = ({ children }) => {
       fetchCallHistory();
     };
 
-    // 14. Call Ended
     const handleCallEnded = ({ durationSeconds, reason }) => {
       playEndCallChime();
       toast(reason || "Call ended", { icon: "📞" });
@@ -814,7 +882,6 @@ export const DirectCallProvider = ({ children }) => {
       fetchCallHistory();
     };
 
-    // Register all socket listeners
     socket.on("direct-call:incoming", handleIncomingCall);
     socket.on("direct-call:outgoing-ringing", handleOutgoingRinging);
     socket.on("direct-call:accepted", handleCallAccepted);
@@ -893,6 +960,9 @@ export const DirectCallProvider = ({ children }) => {
     toggleAudio,
     toggleVideo,
     toggleScreenShare,
+    visualEffect,
+    setVisualEffect,
+    applyVisualEffect,
   };
 
   return (

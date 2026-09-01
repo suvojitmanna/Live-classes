@@ -8,8 +8,12 @@ import {
   FaDesktop,
   FaPhoneSlash,
   FaShieldAlt,
+  FaExpand,
+  FaCompress,
+  FaMagic,
 } from "react-icons/fa";
 import Avatar from "../common/Avatar";
+import VisualEffectsModal from "../meeting/VisualEffectsModal";
 import { useDirectCall } from "../../context/DirectCallContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -29,6 +33,8 @@ const DirectCallView = () => {
     toggleVideo,
     toggleScreenShare,
     endActiveCall,
+    visualEffect,
+    applyVisualEffect,
   } = useDirectCall();
 
   const { user } = useAuth();
@@ -39,6 +45,30 @@ const DirectCallView = () => {
   const [hasValidRemoteVideo, setHasValidRemoteVideo] = useState(false);
   const [localPlaying, setLocalPlaying] = useState(false);
   const [remotePlaying, setRemotePlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isVisualEffectsOpen, setIsVisualEffectsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.warn("Error entering full screen:", err);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((err) => {
+          console.warn("Error exiting full screen:", err);
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     if (!localStream || isVideoOff) {
@@ -71,7 +101,7 @@ const DirectCallView = () => {
       if (localVideoRef.current.srcObject !== localStream) {
         localVideoRef.current.srcObject = localStream;
       }
-      localVideoRef.current.play().catch(() => {});
+      localVideoRef.current.play().catch(() => { });
     }
 
     return () => {
@@ -112,7 +142,7 @@ const DirectCallView = () => {
       if (remoteVideoRef.current.srcObject !== remoteStream) {
         remoteVideoRef.current.srcObject = remoteStream;
       }
-      remoteVideoRef.current.play().catch(() => {});
+      remoteVideoRef.current.play().catch(() => { });
     }
 
     return () => {
@@ -154,7 +184,7 @@ const DirectCallView = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="px-3.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-mono font-semibold text-emerald-400 flex items-center gap-2 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>{formatDuration(callDuration)}</span>
@@ -164,6 +194,19 @@ const DirectCallView = () => {
               <FaShieldAlt className="w-3 h-3 text-emerald-400" />
               <span>Encrypted</span>
             </div>
+
+            <button
+              onClick={handleToggleFullscreen}
+              className="p-2 sm:p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-md flex items-center justify-center"
+              title={isFullscreen ? "Exit Full Screen" : "Full Screen"}
+              aria-label={isFullscreen ? "Exit Full Screen" : "Full Screen"}
+            >
+              {isFullscreen ? (
+                <FaCompress className="w-3.5 h-3.5 text-blue-400" />
+              ) : (
+                <FaExpand className="w-3.5 h-3.5 text-white" />
+              )}
+            </button>
           </div>
         </header>
 
@@ -177,7 +220,7 @@ const DirectCallView = () => {
                     if (el.srcObject !== remoteStream) {
                       el.srcObject = remoteStream;
                     }
-                    el.play().catch(() => {});
+                    el.play().catch(() => { });
                   }
                 }}
                 autoPlay
@@ -186,17 +229,15 @@ const DirectCallView = () => {
                 onPlaying={() => setRemotePlaying(true)}
                 onPause={() => setRemotePlaying(false)}
                 onEnded={() => setRemotePlaying(false)}
-                className={`w-full h-full object-cover transition-opacity duration-300 ${
-                  showRemoteVideo ? "opacity-100" : "opacity-0 absolute pointer-events-none"
-                }`}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${showRemoteVideo ? "opacity-100" : "opacity-0 absolute pointer-events-none"
+                  }`}
               />
 
               {!showRemoteVideo && (
                 <div className="flex flex-col items-center justify-center space-y-4">
                   <div
-                    className={`relative p-2 rounded-full transition-all duration-300 ${
-                      isPeerSpeaking ? "ring-4 ring-emerald-500/60 shadow-[0_0_35px_rgba(16,185,129,0.4)]" : ""
-                    }`}
+                    className={`relative p-2 rounded-full transition-all duration-300 ${isPeerSpeaking ? "ring-4 ring-emerald-500/60 shadow-[0_0_35px_rgba(16,185,129,0.4)]" : ""
+                      }`}
                   >
                     {isPeerSpeaking && (
                       <div className="absolute -inset-3 rounded-full bg-emerald-500/20 animate-ping" />
@@ -210,7 +251,6 @@ const DirectCallView = () => {
                 </div>
               )}
 
-              {/* Bottom Right Draggable User Inset (Self View) */}
               <motion.div
                 drag
                 dragConstraints={{ left: -300, right: 300, top: -200, bottom: 200 }}
@@ -223,7 +263,7 @@ const DirectCallView = () => {
                       if (el.srcObject !== localStream) {
                         el.srcObject = localStream;
                       }
-                      el.play().catch(() => {});
+                      el.play().catch(() => { });
                     }
                   }}
                   autoPlay
@@ -233,9 +273,8 @@ const DirectCallView = () => {
                   onPlaying={() => setLocalPlaying(true)}
                   onPause={() => setLocalPlaying(false)}
                   onEnded={() => setLocalPlaying(false)}
-                  className={`w-full h-full object-cover transform scale-x-[-1] transition-opacity duration-300 ${
-                    showLocalVideo ? "opacity-100" : "opacity-0 pointer-events-none absolute"
-                  }`}
+                  className={`w-full h-full object-cover transform scale-x-[-1] transition-opacity duration-300 ${showLocalVideo ? "opacity-100" : "opacity-0 pointer-events-none absolute"
+                    }`}
                 />
 
                 {!showLocalVideo && (
@@ -302,11 +341,10 @@ const DirectCallView = () => {
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
               onClick={toggleAudio}
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
-                isAudioMuted
-                  ? "bg-red-600 hover:bg-red-700 text-white shadow-red-500/25"
-                  : "bg-white/15 hover:bg-white/25 text-white"
-              }`}
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${isAudioMuted
+                ? "bg-red-600 hover:bg-red-700 text-white shadow-red-500/25"
+                : "bg-white/15 hover:bg-white/25 text-white"
+                }`}
               title={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
             >
               {isAudioMuted ? <FaMicrophoneSlash className="w-4 h-4 sm:w-5 sm:h-5" /> : <FaMicrophone className="w-4 h-4 sm:w-5 sm:h-5" />}
@@ -316,13 +354,12 @@ const DirectCallView = () => {
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
               onClick={toggleVideo}
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
-                isVideoOff
-                  ? "bg-red-600 hover:bg-red-700 text-white shadow-red-500/25"
-                  : isVideo
-                    ? "bg-white/15 hover:bg-white/25 text-white"
-                    : "bg-[#1a73e8] hover:bg-[#1557b0] text-white"
-              }`}
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${isVideoOff
+                ? "bg-red-600 hover:bg-red-700 text-white shadow-red-500/25"
+                : isVideo
+                  ? "bg-white/15 hover:bg-white/25 text-white"
+                  : "bg-[#1a73e8] hover:bg-[#1557b0] text-white"
+                }`}
               title={isVideoOff ? "Turn on camera" : isVideo ? "Turn off camera" : "Switch to video"}
             >
               {isVideoOff ? <FaVideoSlash className="w-4 h-4 sm:w-5 sm:h-5" /> : <FaVideo className="w-4 h-4 sm:w-5 sm:h-5" />}
@@ -333,16 +370,49 @@ const DirectCallView = () => {
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={toggleScreenShare}
-                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
-                  isScreenSharing
-                    ? "bg-[#1a73e8] text-white ring-2 ring-blue-400"
-                    : "bg-white/15 hover:bg-white/25 text-white"
-                }`}
+                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${isScreenSharing
+                  ? "bg-[#1a73e8] text-white ring-2 ring-blue-400"
+                  : "bg-white/15 hover:bg-white/25 text-white"
+                  }`}
                 title={isScreenSharing ? "Stop sharing screen" : "Share screen"}
               >
                 <FaDesktop className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
             )}
+
+            {isVideo && (
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                onClick={() => setIsVisualEffectsOpen(true)}
+                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${visualEffect !== "none"
+                  ? "bg-[#1a73e8] text-white ring-2 ring-blue-400"
+                  : "bg-white/15 hover:bg-white/25 text-white"
+                  }`}
+                title="Background Effects & Blur"
+                aria-label="Background Effects"
+              >
+                <FaMagic className="w-4 h-4 sm:w-5 sm:h-5" />
+              </motion.button>
+            )}
+
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.92 }}
+              onClick={handleToggleFullscreen}
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${isFullscreen
+                ? "bg-[#1a73e8] text-white ring-2 ring-blue-400"
+                : "bg-white/15 hover:bg-white/25 text-white"
+                }`}
+              title={isFullscreen ? "Exit Full Screen" : "Full Screen"}
+              aria-label={isFullscreen ? "Exit Full Screen" : "Full Screen"}
+            >
+              {isFullscreen ? (
+                <FaCompress className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                <FaExpand className="w-4 h-4 sm:w-5 sm:h-5" />
+              )}
+            </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.08 }}
@@ -356,6 +426,15 @@ const DirectCallView = () => {
             </motion.button>
           </div>
         </footer>
+
+        {/* Background Visual Effects Modal */}
+        <VisualEffectsModal
+          isOpen={isVisualEffectsOpen}
+          onClose={() => setIsVisualEffectsOpen(false)}
+          selectedEffect={visualEffect}
+          onSelectEffect={applyVisualEffect}
+          localStream={localStream}
+        />
       </div>
     </AnimatePresence>
   );

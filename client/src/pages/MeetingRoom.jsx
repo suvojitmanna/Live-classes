@@ -50,7 +50,6 @@ const MeetingRoom = () => {
   const [pinnedId, setPinnedId] = useState(null);
   const [isSelfFloating, setIsSelfFloating] = useState(false);
   const [isCaptionsOn, setIsCaptionsOn] = useState(false);
-  const [visualEffect, setVisualEffect] = useState("none");
   const [activeSidebar, setActiveSidebar] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVisualEffectsOpen, setIsVisualEffectsOpen] = useState(false);
@@ -95,6 +94,8 @@ const MeetingRoom = () => {
     toggleVideo,
     toggleScreenShare,
     toggleRaiseHand,
+    visualEffect,
+    applyVisualEffect,
     roomPermissions,
     updateRoomPermissions,
     muteAllParticipants,
@@ -511,7 +512,8 @@ const MeetingRoom = () => {
         isOpen={isVisualEffectsOpen}
         onClose={() => setIsVisualEffectsOpen(false)}
         selectedEffect={visualEffect}
-        onSelectEffect={setVisualEffect}
+        onSelectEffect={applyVisualEffect}
+        localStream={localStream}
       />
 
       <LeaveConfirmModal

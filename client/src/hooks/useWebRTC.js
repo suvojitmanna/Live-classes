@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getSocket } from "../service/socket";
 import { getIceServers } from "../utils/constants";
+import { globalBackgroundProcessor } from "../utils/videoBackgroundProcessor";
 import toast from "react-hot-toast";
 
 export const useWebRTC = () => {
@@ -23,6 +24,7 @@ export const useWebRTC = () => {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [reactions, setReactions] = useState([]);
   const [activeSpeakerId, setActiveSpeakerId] = useState(null);
+  const [visualEffect, setVisualEffect] = useState("none");
   const [roomPermissions, setRoomPermissions] = useState({
     allowMic: true,
     allowCamera: true,
@@ -30,6 +32,8 @@ export const useWebRTC = () => {
     allowChat: true,
   });
   const [polls, setPolls] = useState([]);
+
+  const rawCameraStreamRef = useRef(null);
 
   const [devices, setDevices] = useState({
     audioInputs: [],
@@ -209,7 +213,6 @@ export const useWebRTC = () => {
     [loadDevices],
   );
 
-  // 3. Audio Activity / Active Speaker Detection
   const setupAudioAnalyser = useCallback((stream, id) => {
     try {
       if (!stream || stream.getAudioTracks().length === 0) return;
@@ -343,7 +346,6 @@ export const useWebRTC = () => {
     }
   }, []);
 
-  // 4. Create Peer Connection Helper
   const createPeerConnection = useCallback(
     (targetSocketId, targetUser) => {
       if (peersRef.current.has(targetSocketId)) {
@@ -404,7 +406,6 @@ export const useWebRTC = () => {
     [setupAudioAnalyser, upsertPeer],
   );
 
-  // 5. Knock-to-Join & Host Admission Logic
   const askToJoin = useCallback((targetRoomId, currentUser) => {
     if (!targetRoomId || !currentUser) return;
     setLoading(true);
@@ -413,7 +414,10 @@ export const useWebRTC = () => {
 
     const socket = getSocket();
     userRef.current = currentUser;
-    const cleanRoomId = targetRoomId.toLowerCase().trim().replace(/[\s_]+/g, "-");
+    const cleanRoomId = targetRoomId
+      .toLowerCase()
+      .trim()
+      .replace(/[\s_]+/g, "-");
 
     const doEmit = () => {
       socket.emit("knock-to-join", {
@@ -430,7 +434,9 @@ export const useWebRTC = () => {
         if (!socket.connected) {
           setLoading(false);
           setKnockStatus("idle");
-          toast.error("Real-time server connection timed out. Please check backend on Render.");
+          toast.error(
+            "Real-time server connection timed out. Please check backend on Render.",
+          );
         }
       }, 7000);
 
@@ -503,7 +509,6 @@ export const useWebRTC = () => {
     }
   }, []);
 
-  // 6. Join Active Meeting Room
   const joinMeetingRoom = useCallback(
     async (targetRoomId, currentUser, asHost = false) => {
       try {
@@ -529,7 +534,6 @@ export const useWebRTC = () => {
         const socket = getSocket();
         if (!socket.connected) socket.connect();
 
-        // Emit Join Room
         socket.emit("join-room", {
           roomId: normalizedRoomId,
           userId: currentUser.id || currentUser._id,
@@ -558,7 +562,6 @@ export const useWebRTC = () => {
     ],
   );
 
-  // 7. Socket.IO Event Subscriptions
   useEffect(() => {
     const socket = getSocket();
 
@@ -588,7 +591,7 @@ export const useWebRTC = () => {
         duration: 6000,
       });
     });
-    
+
     socket.on(
       "knock-response",
       async ({ status, roomId: admittedRoomId, isHost: hostFlag, message }) => {
@@ -809,7 +812,6 @@ export const useWebRTC = () => {
       }
     });
 
-    // Room Permissions Updated by Host
     socket.on("room-permissions-updated", (perms) => {
       if (!perms) return;
       setRoomPermissions(perms);
@@ -839,7 +841,6 @@ export const useWebRTC = () => {
       }
     });
 
-    // Forced Remote Actions from Host
     socket.on("force-mute", () => {
       if (!isHostRef.current && localStreamRef.current) {
         const audioTracks = localStreamRef.current.getAudioTracks();
@@ -882,7 +883,9 @@ export const useWebRTC = () => {
           setScreenStream(null);
         }
         setIsScreenSharing(false);
-        toast.error("The host stopped your screen share 🖥️", { duration: 4000 });
+        toast.error("The host stopped your screen share 🖥️", {
+          duration: 4000,
+        });
         if (roomIdRef.current) {
           socket.emit("screen-share", {
             roomId: roomIdRef.current,
@@ -899,7 +902,6 @@ export const useWebRTC = () => {
       window.location.href = "/dashboard";
     });
 
-    // Live Polls / Voting
     socket.on("polls-sync", ({ polls: syncedPolls }) => {
       if (Array.isArray(syncedPolls)) {
         setPolls(syncedPolls);
@@ -915,7 +917,6 @@ export const useWebRTC = () => {
       }
     });
 
-    // User Left
     socket.on("user-left", ({ socketId, userName }) => {
       removePeer(socketId);
       if (userName) {
@@ -962,7 +963,11 @@ export const useWebRTC = () => {
   ]);
 
   const toggleAudio = useCallback(() => {
-    if (!isHostRef.current && roomPermissionsRef.current.allowMic === false && isAudioMuted) {
+    if (
+      !isHostRef.current &&
+      roomPermissionsRef.current.allowMic === false &&
+      isAudioMuted
+    ) {
       toast.error("The host has disabled microphones for participants 🔇");
       return;
     }
@@ -985,7 +990,11 @@ export const useWebRTC = () => {
   }, [isAudioMuted, roomId]);
 
   const toggleVideo = useCallback(() => {
-    if (!isHostRef.current && roomPermissionsRef.current.allowCamera === false && isVideoOff) {
+    if (
+      !isHostRef.current &&
+      roomPermissionsRef.current.allowCamera === false &&
+      isVideoOff
+    ) {
       toast.error("The host has disabled cameras for participants 📷");
       return;
     }
@@ -1008,7 +1017,11 @@ export const useWebRTC = () => {
   }, [isVideoOff, roomId]);
 
   const toggleScreenShare = useCallback(async () => {
-    if (!isHostRef.current && roomPermissionsRef.current.allowScreenShare === false && !isScreenSharing) {
+    if (
+      !isHostRef.current &&
+      roomPermissionsRef.current.allowScreenShare === false &&
+      !isScreenSharing
+    ) {
       toast.error("The host has disabled screen sharing for participants 🖥️");
       return;
     }
@@ -1097,6 +1110,77 @@ export const useWebRTC = () => {
     }
   }, [isHandRaised, roomId]);
 
+  const applyVisualEffect = useCallback(
+    async (effect) => {
+      const effectId =
+        typeof effect === "string" ? effect : effect?.id || "none";
+      setVisualEffect(effectId);
+
+      if (!localStreamRef.current) return;
+
+      if (effectId === "none") {
+        if (rawCameraStreamRef.current) {
+          const rawVideoTrack = rawCameraStreamRef.current.getVideoTracks()[0];
+          if (rawVideoTrack) {
+            rawVideoTrack.enabled = !isVideoOff;
+            peersRef.current.forEach(({ pc }) => {
+              const sender = pc
+                .getSenders()
+                .find((s) => s.track && s.track.kind === "video");
+              if (sender) {
+                sender.replaceTrack(rawVideoTrack).catch(() => {});
+              }
+            });
+            const restoredStream = new MediaStream([
+              rawVideoTrack,
+              ...rawCameraStreamRef.current.getAudioTracks(),
+            ]);
+            localStreamRef.current = restoredStream;
+            setLocalStream(restoredStream);
+          }
+          globalBackgroundProcessor.stop();
+        }
+        return;
+      }
+
+      try {
+        if (!rawCameraStreamRef.current) {
+          rawCameraStreamRef.current = localStreamRef.current;
+        }
+
+        globalBackgroundProcessor.setEffect(effect);
+
+        if (!globalBackgroundProcessor.isRunning) {
+          const processedStream = await globalBackgroundProcessor.start(
+            rawCameraStreamRef.current,
+            effect,
+          );
+          const processedVideoTrack = processedStream.getVideoTracks()[0];
+          if (processedVideoTrack) {
+            processedVideoTrack.enabled = !isVideoOff;
+            peersRef.current.forEach(({ pc }) => {
+              const sender = pc
+                .getSenders()
+                .find((s) => s.track && s.track.kind === "video");
+              if (sender) {
+                sender.replaceTrack(processedVideoTrack).catch(() => {});
+              }
+            });
+            const combinedStream = new MediaStream([
+              processedVideoTrack,
+              ...rawCameraStreamRef.current.getAudioTracks(),
+            ]);
+            localStreamRef.current = combinedStream;
+            setLocalStream(combinedStream);
+          }
+        }
+      } catch (err) {
+        console.warn("useWebRTC applyVisualEffect error:", err);
+      }
+    },
+    [isVideoOff],
+  );
+
   const sendReaction = useCallback(
     (emoji) => {
       const socket = getSocket();
@@ -1111,7 +1195,10 @@ export const useWebRTC = () => {
     (text) => {
       if (!text || !text.trim() || !roomId) return;
 
-      if (!isHostRef.current && roomPermissionsRef.current.allowChat === false) {
+      if (
+        !isHostRef.current &&
+        roomPermissionsRef.current.allowChat === false
+      ) {
         toast.error("The host has disabled in-call chat 💬");
         return;
       }
@@ -1131,15 +1218,17 @@ export const useWebRTC = () => {
     [roomId],
   );
 
-  // Host Action Methods
   const updateRoomPermissions = useCallback(
     (newPerms) => {
       const socket = getSocket();
       if (socket.connected && roomId) {
-        socket.emit("host-update-permissions", { roomId, permissions: newPerms });
+        socket.emit("host-update-permissions", {
+          roomId,
+          permissions: newPerms,
+        });
       }
     },
-    [roomId]
+    [roomId],
   );
 
   const muteAllParticipants = useCallback(() => {
@@ -1164,15 +1253,17 @@ export const useWebRTC = () => {
       if (socket.connected && roomId && targetSocketId && action) {
         socket.emit("host-control-user", { roomId, targetSocketId, action });
         if (action === "mute") toast.success("Muted participant 🔇");
-        if (action === "stop-video") toast.success("Turned off participant's camera 📷");
-        if (action === "stop-screen") toast.success("Stopped participant's screen share 🖥️");
-        if (action === "kick") toast.success("Removed participant from meeting 🚪");
+        if (action === "stop-video")
+          toast.success("Turned off participant's camera 📷");
+        if (action === "stop-screen")
+          toast.success("Stopped participant's screen share 🖥️");
+        if (action === "kick")
+          toast.success("Removed participant from meeting 🚪");
       }
     },
-    [roomId]
+    [roomId],
   );
 
-  // Poll Methods
   const createPoll = useCallback(
     (question, options) => {
       const socket = getSocket();
@@ -1181,7 +1272,7 @@ export const useWebRTC = () => {
         toast.success("Poll launched to meeting! 📊");
       }
     },
-    [roomId]
+    [roomId],
   );
 
   const votePoll = useCallback(
@@ -1198,7 +1289,7 @@ export const useWebRTC = () => {
         toast.success("Vote submitted! 🗳️");
       }
     },
-    [roomId]
+    [roomId],
   );
 
   const closePoll = useCallback(
@@ -1209,7 +1300,7 @@ export const useWebRTC = () => {
         toast.success("Poll ended 🛑");
       }
     },
-    [roomId]
+    [roomId],
   );
 
   const deletePoll = useCallback(
@@ -1220,7 +1311,7 @@ export const useWebRTC = () => {
         toast.success("Poll removed 🗑️");
       }
     },
-    [roomId]
+    [roomId],
   );
 
   const resetUnreadChatCount = useCallback(() => {
@@ -1265,6 +1356,12 @@ export const useWebRTC = () => {
       cancelAnimationFrame(animationFrameRef.current);
     }
 
+    if (globalBackgroundProcessor.isRunning) {
+      globalBackgroundProcessor.stop();
+    }
+    rawCameraStreamRef.current = null;
+    setVisualEffect("none");
+
     setPeers([]);
     setPendingKnocks([]);
     setMessages([]);
@@ -1278,6 +1375,10 @@ export const useWebRTC = () => {
 
   useEffect(() => {
     return () => {
+      if (globalBackgroundProcessor.isRunning) {
+        globalBackgroundProcessor.stop();
+      }
+      rawCameraStreamRef.current = null;
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((track) => track.stop());
       }
@@ -1337,6 +1438,9 @@ export const useWebRTC = () => {
     toggleVideo,
     toggleScreenShare,
     toggleRaiseHand,
+    visualEffect,
+    setVisualEffect,
+    applyVisualEffect,
     roomPermissions,
     updateRoomPermissions,
     muteAllParticipants,
