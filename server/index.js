@@ -56,5 +56,4 @@ app.use(errorHandler);
 httpServer.listen(PORT, () => {
   console.log(`🚀 Live Classes server is running on port ${PORT}`);
   console.log(`🌐 CLIENT_URL: ${process.env.CLIENT_URL || "http://localhost:5173"}`);
-  console.log(`📹 WebRTC signaling & Socket.IO initialized`);
 });
