@@ -513,7 +513,6 @@ const MeetingRoom = () => {
         onClose={() => setIsVisualEffectsOpen(false)}
         selectedEffect={visualEffect}
         onSelectEffect={applyVisualEffect}
-        localStream={localStream}
       />
 
       <LeaveConfirmModal

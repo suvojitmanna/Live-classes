@@ -433,7 +433,6 @@ const DirectCallView = () => {
           onClose={() => setIsVisualEffectsOpen(false)}
           selectedEffect={visualEffect}
           onSelectEffect={applyVisualEffect}
-          localStream={localStream}
         />
       </div>
     </AnimatePresence>
