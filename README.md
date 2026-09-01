@@ -122,46 +122,42 @@ Live Classes includes a client-side real-time video processing engine powered by
 
 ```mermaid
 graph TB
-    subgraph "Frontend Layer (React 19 + Vite)"
-        UI[💻 User Interface / Tailwind CSS v4]
-        Hooks[🎣 useWebRTC / Custom Hooks]
-        Context[🌐 DirectCallContext / AuthContext]
-        Proc[🎨 VideoBackgroundProcessor / MediaPipe]
-        UI <--> Hooks
-        UI <--> Context
-        Hooks <--> Proc
-    end
 
-    subgraph "Signaling & Backend Layer (Node.js + Express)"
-        API[🚀 Express REST API]
-        Auth[🔐 JWT & Google OAuth Controller]
-        Mail[📧 Nodemailer OTP Service]
-        Socket[🔌 Socket.IO Signaling Gateway]
-        API --> Auth
-        API --> Mail
-    end
+    UI["💻 User Interface / Tailwind CSS v4"]
+    Hooks["🎣 useWebRTC / Custom Hooks"]
+    Context["🌐 DirectCallContext / AuthContext"]
+    Proc["🎨 VideoBackgroundProcessor / MediaPipe"]
 
-    subgraph "Database & Storage"
-        DB[(🍃 MongoDB Atlas)]
-        Auth <--> DB
-        API <--> DB
-    end
+    API["🚀 Express REST API"]
+    Auth["🔐 JWT & Google OAuth Controller"]
+    Mail["📧 Nodemailer OTP Service"]
+    Socket["🔌 Socket.IO Signaling Gateway"]
 
-    subgraph "Peer-to-Peer Media Layer (WebRTC Mesh)"
-        STUN[🌐 STUN / TURN Server]
-        PeerA["Peer A - Local Video"]
-        PeerB["Peer B - Remote Participant"]
-        PeerC["Peer C - Remote Participant"]
-        
-        PeerA <-->|Direct Encrypted Media Stream| PeerB
-        PeerA <-->|Direct Encrypted Media Stream| PeerC
-        PeerB <-->|Direct Encrypted Media Stream| PeerC
-    end
+    DB[("🍃 MongoDB Atlas")]
 
-    %% Communication Pathways
+    STUN["🌐 STUN / TURN Server"]
+    PeerA["Peer A - Local Video"]
+    PeerB["Peer B - Remote Participant"]
+    PeerC["Peer C - Remote Participant"]
+
+    UI <--> Hooks
+    UI <--> Context
+    Hooks <--> Proc
+
+    API --> Auth
+    API --> Mail
+
+    Auth <--> DB
+    API <--> DB
+
+    PeerA <-->|Direct Encrypted Media Stream| PeerB
+    PeerA <-->|Direct Encrypted Media Stream| PeerC
+    PeerB <-->|Direct Encrypted Media Stream| PeerC
+
     Context -->|HTTP/REST| API
     Hooks -->|WebSocket Signaling| Socket
-    Socket -->|SDP Offer / Answer & ICE| PeerA
+    Socket -->|SDP Offer / Answer and ICE| PeerA
+
     STUN -.->|NAT Traversal| PeerA
     STUN -.->|NAT Traversal| PeerB
 ```
@@ -491,7 +487,10 @@ NODE_ENV=production npm start
 ## 📊 Repository Language & Code Metrics
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=suvojitmanna&repo=Live-classes&layout=compact&theme=tokyonight&hide_border=true" alt="Top Languages"/>
+  <img 
+    src="https://github-readme-stats.vercel.app/api/top-langs/?username=suvojitmanna&repo=Live-classes&layout=compact&theme=tokyonight&hide_border=true" 
+    alt="Top Languages"
+  />
 </p>
 
 ---
@@ -517,18 +516,15 @@ Contributions are warmly welcomed! To contribute to Live Classes:
 
 ---
 
----
-
-<div align="center">
-
 ### 📄 License & Author
 
+<div align="center">
+  
 Distributed under the **ISC License**. See [`LICENSE`](LICENSE) for more information.
 
 <br/>
 
 **Developed with ❤️ by [Suvojit Manna](https://github.com/suvojitmanna)**
-
 <br/>
 
 <a href="https://github.com/suvojitmanna">
@@ -539,11 +535,10 @@ Distributed under the **ISC License**. See [`LICENSE`](LICENSE) for more informa
   <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
 </a>
 
-<br/><br/>
+<br/>
 
 ⭐ **If you found this project helpful, please give it a star on GitHub!** ⭐
 
 </div>
-
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:3b82f6,50:6366f1,100:06b6d4&height=120&section=footer" width="100%"/>
 
