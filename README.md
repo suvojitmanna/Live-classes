@@ -149,9 +149,9 @@ graph TB
 
     subgraph "Peer-to-Peer Media Layer (WebRTC Mesh)"
         STUN[🌐 STUN / TURN Server]
-        PeerA[👤 Peer A (Local Video)]
-        PeerB[👥 Peer B (Remote Participant)]
-        PeerC[👥 Peer C (Remote Participant)]
+        PeerA["Peer A - Local Video"]
+        PeerB["Peer B - Remote Participant"]
+        PeerC["Peer C - Remote Participant"]
         
         PeerA <-->|Direct Encrypted Media Stream| PeerB
         PeerA <-->|Direct Encrypted Media Stream| PeerC
@@ -173,7 +173,7 @@ graph TB
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Caller as 👤 Participant A (Caller)
+    participant Caller as 👤 Participant A (Caller)
     participant Socket as 🔌 Socket.IO Server
     actor Callee as 👥 Participant B (Receiver)
 
@@ -308,44 +308,32 @@ To run Live Classes locally or in production, configure environment files for bo
 Create a `.env` file in the `server/` directory:
 
 ```env
-# ==========================================
 # SERVER CONFIGURATION
-# ==========================================
 PORT=5000
 NODE_ENV=development
 CLIENT_URL=http://localhost:5173
 
-# ==========================================
 # DATABASE (MongoDB Atlas / Local)
-# ==========================================
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/live-classes?retryWrites=true&w=majority
 
-# ==========================================
 # JWT AUTHENTICATION
-# ==========================================
 JWT_SECRET=your_super_secret_jwt_encryption_key_min_32_characters
 JWT_EXPIRES_IN=7d
 
-# ==========================================
 # GOOGLE OAUTH 2.0 CREDENTIALS
 # (Obtain from Google Cloud Console -> APIs & Credentials)
-# ==========================================
 GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 
-# ==========================================
 # SMTP EMAIL SERVICE (For 6-Digit Email OTP)
 # (e.g. Gmail App Password, SendGrid, or Mailtrap)
-# ==========================================
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_email_address@gmail.com
 SMTP_PASSWORD=your_16_character_app_password
-EMAIL_FROM="Live Classes Team" <noreply@liveclasses.com>
+EMAIL_FROM="Live Classes Team" <noreply@liveclasses.c
 
-# ==========================================
 # WEBRTC STUN / TURN CONFIGURATION
-# ==========================================
 STUN_SERVER_URL=stun:stun.l.google.com:19302
 ```
 
@@ -354,20 +342,14 @@ STUN_SERVER_URL=stun:stun.l.google.com:19302
 Create a `.env` file in the `client/` directory:
 
 ```env
-# ==========================================
 # API & WEBSOCKET BACKEND URLS
-# ==========================================
 VITE_BASE_URL=http://localhost:5000/api
 VITE_SOCKET_URL=http://localhost:5000
 
-# ==========================================
 # GOOGLE OAUTH CLIENT ID (Must match backend)
-# ==========================================
 VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
 
-# ==========================================
 # STUN SERVER FOR WEBRTC NAT TRAVERSAL
-# ==========================================
 VITE_STUN_SERVER_URL=stun:stun.l.google.com:19302
 ```
 
@@ -535,21 +517,33 @@ Contributions are warmly welcomed! To contribute to Live Classes:
 
 ---
 
-## 📄 License & Author
-
-Distributed under the **ISC License**. See [`LICENSE`](LICENSE) for more information.
-
-<p align="center">
-  <b>Developed with ❤️ by <a href="https://github.com/suvojitmanna">Suvojit Manna</a></b>
-</p>
-
-<p align="center">
-  <a href="https://github.com/suvojitmanna"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Profile"/></a>
-  <a href="mailto:mannasuvojit34@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/></a>
-</p>
-
 ---
 
 <div align="center">
-  <h3>⭐ If you found this project helpful, please give it a star on GitHub! ⭐</h3>
+
+### 📄 License & Author
+
+Distributed under the **ISC License**. See [`LICENSE`](LICENSE) for more information.
+
+<br/>
+
+**Developed with ❤️ by [Suvojit Manna](https://github.com/suvojitmanna)**
+
+<br/>
+
+<a href="https://github.com/suvojitmanna">
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Profile"/>
+</a>
+&nbsp;
+<a href="mailto:mannasuvojit34@gmail.com">
+  <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
+</a>
+
+<br/><br/>
+
+⭐ **If you found this project helpful, please give it a star on GitHub!** ⭐
+
 </div>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:3b82f6,50:6366f1,100:06b6d4&height=120&section=footer" width="100%"/>
+
